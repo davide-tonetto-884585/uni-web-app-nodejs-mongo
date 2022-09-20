@@ -1,0 +1,176 @@
+<app-top-bar></app-top-bar>
+<div id="main-div">
+    <br>
+    <div class="container">
+        <div class="constainer row">
+            <div class="col">
+                <h1 class="text-white">{{ this.course?.titolo }}</h1>
+                <p class="text-white">Language: <strong>{{ this.course?.lingua }}</strong></p>
+                <app-teacher-card *ngFor="let docente of this.docenti" [teacher]="docente"></app-teacher-card>
+            </div>
+            <div *ngIf="this.course?.immagine_copertina" class="col">
+                <img class="img-fluid h-100 w-100" title="img"
+                    src="{{ this.BACKEND_URL + this.course?.immagine_copertina }}">
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+<div class="container">
+    <mat-tab-group mat-align-tabs="center">
+        <mat-tab label="Description">
+            <br>
+            <div class="container">
+                <p id="descr">{{ this.course?.descrizione }}</p>
+            </div>
+        </mat-tab>
+        <mat-tab label="Scheduling">
+            <br>
+            <div class="container">
+                <div class="text-center mb-2">
+                    <button type="button" class="btn btn-danger" (click)="loadProgs(null)">Show past schedules</button>
+                </div>
+                <app-course-schedule-item *ngFor="let prog of this.prog_corso" [prog]="prog" [docenti_corso]="docenti">
+                </app-course-schedule-item>
+            </div>
+            <div *ngIf="this.prog_corso?.length == 0" class="alert alert-danger" role="alert">
+                There are no course schedules
+            </div>
+        </mat-tab>
+        <mat-tab label="Q&A">
+            <br>
+            <div class="container mb-3">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <h3 class="mt-3">Filter by</h3>
+                        <form class="mt-4" id="searchForm">
+                            <div class="input-group">
+                                <input class="form-control" type="search" placeholder="Search text..."
+                                    aria-label="Search" aria-describedby="button-search" name="testo"
+                                    [(ngModel)]="search_text">
+                                <button title="Search" class="btn btn-outline-danger" type="button" id="button-search"
+                                    (click)="filter()"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            </div>
+                            <h5 class="mt-2">Question status:</h5>
+                            <mat-radio-group aria-label="Select an option" name="status" [(ngModel)]="chiusa">
+                                <mat-radio-button value="0">Opened</mat-radio-button><br>
+                                <mat-radio-button value="1">Closed</mat-radio-button><br>
+                                <mat-radio-button (value)="null">All</mat-radio-button>
+                            </mat-radio-group>
+                            <h5 class="mt-2">Order by:</h5>
+                            <mat-radio-group aria-label="Select an option" name="order_by" [(ngModel)]="order_by">
+                                <mat-radio-button value="like">Like</mat-radio-button><br>
+                                <mat-radio-button value="time">Date</mat-radio-button><br>
+                            </mat-radio-group>
+                            <button type="button" class="btn btn-outline-danger mt-3 mb-3"
+                                (click)="filter()">Filter</button>
+                        </form>
+
+                        <div *ngIf="isLogged()">
+                            <h3 class="mt-3">New question</h3>
+                            <form class="mt-4" id="searchForm">
+                                <mat-form-field class="w-100" appearance="fill">
+                                    <mat-label>Text...</mat-label>
+                                    <textarea matInput placeholder="Text..." name="answare_text"
+                                        [(ngModel)]="question_text"></textarea>
+                                </mat-form-field>
+                                <button type="button" class="btn btn-outline-danger mb-3"
+                                    (click)="postQuestion()">Post</button>
+                            </form>
+                        </div>
+                        <button *ngIf="!this.isLogged()" type="button" class="btn btn-danger" routerLink="/login">
+                            Login to post a question
+                        </button>
+                    </div>
+
+                    <div id="courses" class="col-sm-8">
+                        <h3 class="mt-3">Questions</h3>
+                        <mat-paginator [length]="count" [pageSize]="limit" [pageSizeOptions]="[5, 10, 25]"
+                            (page)="onPageChange($event)">
+                        </mat-paginator>
+                        <app-question-item *ngFor="let question of questions" [question]="question"
+                            [docenti_corso]="docenti">
+                        </app-question-item>
+                    </div>
+                </div>
+            </div>
+        </mat-tab>
+        <mat-tab *ngIf="(isAdmin() || isCourseTeacher()) && statistics" label="Statistics">
+            <div #div_stat class="container">
+                <h3 class="mt-3">General</h3>
+                <h6 class="text-center">Students distribution</h6>
+                <div class="chart-wrapper">
+                    <ngx-charts-advanced-pie-chart [results]="statistics.distribuzione_studenti">
+                    </ngx-charts-advanced-pie-chart>
+                </div>
+                <hr>
+                <h6 class="text-center">Students origin</h6>
+                <div class="chart-wrapper">
+                    <ngx-charts-advanced-pie-chart [results]="statistics.provenienza_studenti">
+                    </ngx-charts-advanced-pie-chart>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col">
+                        <h6>Average age</h6>
+                        <p>{{ statistics.eta_media_iscritti | number : '1.2-2' }}</p>
+                    </div>
+                    <div class="col">
+                        <h6>Total registrations</h6>
+                        <p>{{ statistics.totale_iscrizioni }}</p>
+                    </div>
+                    <div class="col">
+                        <h6>Total attendance</h6>
+                        <p>{{ statistics.totale_presenze }} ({{ (statistics.totale_presenze * 100) /
+                            statistics.totale_iscrizioni | number : '1.2-2' }}%)</p>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="text-center">Registrations gender comparison</h6>
+                <div class="chart-wrapper">
+                    <ngx-charts-gauge [results]="[
+                        {name: 'Male', value: statistics.totale_iscrizioni_maschi},
+                        {name: 'Female', value: statistics.totale_iscrizioni_femmine},
+                        {name: 'Other', value: statistics.totale_iscrizioni_altri_sessi}
+                    ]" [legend]="true" [max]="statistics.totale_iscrizioni" [units]="'students'"
+                        [bigSegments]="statistics.totale_iscrizioni" [legendTitle]="'Gender'">
+                    </ngx-charts-gauge>
+                </div>
+                <hr>
+                <h6 class="text-center">Lesson modality comparison</h6>
+                <div class="chart-wrapper">
+                    <ngx-charts-gauge [results]="[
+                        {name: 'Online lessons', value: statistics.totale_lezioni_online},
+                        {name: 'In place lessons', value: statistics.totale_lezioni_presenza},
+                        {name: 'Dual lessons', value: statistics.totale_lezioni_duale},
+                    ]" [legend]="true" [max]="statistics.totale_lezioni" [units]="'lessons'"
+                        [bigSegments]="statistics.totale_lezioni" [legendTitle]="'Gender'">
+                    </ngx-charts-gauge>
+                </div>
+                <hr>
+                <h6 class="text-center">Registrations/attendance modality comparison</h6>
+                <div class="chart-wrapper">
+                    <ngx-charts-gauge [results]="[
+                        {name: 'Online registrations', value: statistics.totale_iscrizioni_online},
+                        {name: 'In place registrations', value: statistics.totale_iscrizioni_presenza},
+                        {name: 'Dual registrations', value: statistics.totale_iscrizioni_duale},
+
+                        {name: 'Online attendance', value: statistics.totale_presenze_online},
+                        {name: 'In place attendance', value: statistics.totale_presenze_presenza},
+                        {name: 'Dual attendance', value: statistics.totale_presenze_duale},
+                    ]" [legend]="true" [max]="statistics.totale_iscrizioni" [units]="'students'"
+                        [bigSegments]="statistics.totale_iscrizioni" [legendTitle]="'Modality'">
+                    </ngx-charts-gauge>
+                </div>
+                <hr>
+                <h6 class="text-center">Schedulings comparison</h6>
+                <div class="chart-wrapper">
+                    <ngx-charts-bar-vertical-2d [results]="statistics.confronto_programmazioni_corso" [xAxis]="true"
+                        [yAxis]="true" [legend]="true" [showXAxisLabel]="true" [showYAxisLabel]="true"
+                        [xAxisLabel]="'Course schedules'" [yAxisLabel]="'Students'" [legendTitle]="'Legend'">
+                    </ngx-charts-bar-vertical-2d>
+                </div>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</div>

@@ -60,8 +60,8 @@ export class UserHttpService {
       })
     };
 
-    // invio richiesta login al backend 
-    return this.http.get(BACKEND_URL + '/login', options).pipe(
+    // invio richiesta login al backend
+    return this.http.get(BACKEND_URL + '/users/login', options).pipe(
       tap((data: any) => {
         this.token = data.token;
         // estrapolo dati dal token

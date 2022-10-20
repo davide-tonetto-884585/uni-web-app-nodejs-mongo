@@ -9,11 +9,24 @@ import {expressjwt as jwt} from "express-jwt";
 import passport from "passport";
 import passportHTTP = require('passport-http');
 import * as mongoose from "mongoose";
+const multer = require("multer");
 
 import * as User from './models/User';
 
 // enable colors for console
 colors.enabled = true;
+
+// enable multer for file uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads')
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname)
+    }
+})
+
+export let upload = multer({ storage: storage })
 
 // check JWT_SECRET
 const dotenv = require('dotenv').config();
@@ -112,16 +125,20 @@ app.get("/", (req, res) => {
 
 // include all routes
 const usersRoutes = require('./routes/users');
+const schoolsRoutes = require('./routes/schools');
+const coursesRoutes = require('./routes/courses');
 
 app.use("/users", usersRoutes);
-
+app.use("/schools", schoolsRoutes);
+app.use("/courses", coursesRoutes);
 
 // Add error handling middleware
 app.use(function (err: any, req: any, res: any, next: any) {
     if (typeof err === 'object')
-        console.log("Request error: ".red + JSON.stringify(err))
+        console.log("Request error: ".red + (JSON.stringify(err) == '{}' ? err : JSON.stringify(err)))
     else
         console.log("Request error: ".red + err);
+
     res.status(err.statusCode || 500).json(err);
 });
 

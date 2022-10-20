@@ -15,7 +15,7 @@ export interface User extends mongoose.Document {
     gender: string,
     studentData: {
         fieldOfStudy: string,
-        schoolId: number
+        schoolId: mongoose.Schema.Types.ObjectId
     },
     teacherData: {
         isAdmin: boolean,
@@ -27,9 +27,8 @@ export interface User extends mongoose.Document {
     setPassword: (pwd: string) => void,
     validatePassword: (pwd: string) => boolean,
     hasAdminRole: () => boolean,
-    setAdmin: () => void,
-    hasModeratorRole: () => boolean,
-    setModerator: () => void,
+    setAdmin: () => void
+    hasTeacherRole: () => boolean
 }
 
 const userSchema = new mongoose.Schema({
@@ -91,6 +90,7 @@ const userSchema = new mongoose.Schema({
             },
             schoolId: {
                 type: mongoose.SchemaTypes.ObjectId,
+                ref: 'schools',
                 required: true
             }
         },

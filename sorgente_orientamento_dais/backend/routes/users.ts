@@ -8,7 +8,7 @@ const express = require('express');
 const router = express.Router();
 import jsonwebtoken = require('jsonwebtoken');
 import crypto = require('crypto');
-const multer  = require('multer')
+const multer  = require('multer');
 
 // middleware for file upload (see multer package)
 const upload = multer({ dest: './uploads/' });
@@ -20,7 +20,7 @@ if (!process.env.JWT_SECRET) {
 
 const JWT_SECRET: string = process.env.JWT_SECRET;
 
-router.get('/login', passport.authenticate('basic', {session: false}), async (req: any, res: any) => {
+router.get('/login', passport.authenticate('basic', {session: false}), async (req, res) => {
     const roles: Role[] = Array();
 
     let tokenData: any = {

@@ -17,6 +17,7 @@ export interface Course extends mongoose.Document {
         inscriptionLimit: number,
         certificatePassword: string,
         inscriptions: [{
+            readonly _id: mongoose.Schema.Types.ObjectId,
             studentId: mongoose.Schema.Types.ObjectId,
             isInPresence: boolean
         }],
@@ -38,11 +39,13 @@ export interface Course extends mongoose.Document {
         addInscription: (userId, isInPresence) => boolean
     }],
     questions: [{
+        readonly _id: mongoose.Schema.Types.ObjectId,
         userId: mongoose.Schema.Types.ObjectId,
         text: string,
         closed: boolean,
         timestamp: Date,
         answers: [{
+            readonly _id: mongoose.Schema.Types.ObjectId,
             userId: mongoose.Schema.Types.ObjectId,
             text: string,
             timestamp: Date

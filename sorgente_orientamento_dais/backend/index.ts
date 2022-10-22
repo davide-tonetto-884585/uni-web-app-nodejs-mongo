@@ -127,10 +127,15 @@ app.get("/", (req, res) => {
 const usersRoutes = require('./routes/users');
 const schoolsRoutes = require('./routes/schools');
 const coursesRoutes = require('./routes/courses');
+const courseSchedulesRoutes = require('./routes/courseSchedules');
 
 app.use("/users", usersRoutes);
 app.use("/schools", schoolsRoutes);
 app.use("/courses", coursesRoutes);
+app.use("/courses/:id/courseSchedules", (req, res, next) => {
+    res.locals.courseId = req.params.id;
+    next();
+}, courseSchedulesRoutes);
 
 // Add error handling middleware
 app.use(function (err: any, req: any, res: any, next: any) {

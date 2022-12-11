@@ -8,6 +8,7 @@ const express = require('express');
 const router = express.Router();
 import jsonwebtoken = require('jsonwebtoken');
 import crypto = require('crypto');
+
 const multer  = require('multer');
 
 // middleware for file upload (see multer package)
@@ -304,6 +305,16 @@ router.put('/teachers/:id',
         console.log('Teacher update failed: ' + err);
         return next({statusCode: 500, error: true, errormessage: 'Cannot update teacher information'});
     });
+});
+
+router.get('/students/:id/inscriptions', authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+    if (req.auth.roles.includes(Role.Student) && req.auth.id !== req.params.id)
+        return next({statusCode: 401, error: true, errormessage: "Permission denied."})
+
+    let user = await User.getModel().findOne({_id: req.params.id});
+    if (!user) return next({statusCode: 404, error: true, errormessage: "Student not found."});
+
+    return res.status(200).json(user.studentData.inscriptions);
 });
 
 module.exports = router;

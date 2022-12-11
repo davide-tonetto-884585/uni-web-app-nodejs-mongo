@@ -9,6 +9,7 @@ import {expressjwt as jwt} from "express-jwt";
 import passport from "passport";
 import passportHTTP = require('passport-http');
 import * as mongoose from "mongoose";
+
 const multer = require("multer");
 
 import * as User from './models/User';
@@ -26,7 +27,7 @@ const storage = multer.diskStorage({
     }
 })
 
-export let upload = multer({ storage: storage })
+export let upload = multer({storage: storage})
 
 // check JWT_SECRET
 const dotenv = require('dotenv').config();
@@ -129,6 +130,10 @@ const schoolsRoutes = require('./routes/schools');
 const coursesRoutes = require('./routes/courses');
 const courseSchedulesRoutes = require('./routes/courseSchedules');
 const lessonsRoutes = require('./routes/lessons');
+const inscriptionsRoutes = require('./routes/inscriptions');
+const classroomsRoutes = require('./routes/classrooms');
+const questionsRoutes = require('./routes/questions');
+const attendancesRoutes = require('./routes/attendances');
 
 app.use("/users", usersRoutes);
 app.use("/schools", schoolsRoutes);
@@ -137,11 +142,27 @@ app.use("/courses/:id/courseSchedules", (req, res, next) => {
     res.locals.courseId = req.params.id;
     next();
 }, courseSchedulesRoutes);
-app.use("/courses/:id/courseSchedules/:scheduleId", (req, res, next) => {
+app.use("/courses/:id/courseSchedules/:scheduleId/lessons", (req, res, next) => {
     res.locals.courseId = req.params.id;
     res.locals.scheduleId = req.params.scheduleId;
     next();
 }, lessonsRoutes);
+app.use("/courses/:id/courseSchedules/:scheduleId/inscriptions", (req, res, next) => {
+    res.locals.courseId = req.params.id;
+    res.locals.scheduleId = req.params.scheduleId;
+    next();
+}, inscriptionsRoutes);
+app.use("/classrooms", classroomsRoutes);
+app.use("/courses/:id/questions", (req, res, next) => {
+    res.locals.courseId = req.params.id;
+    next();
+}, questionsRoutes);
+app.use("/courses/:id/courseSchedules/:scheduleId/lessons/:lessonId/attendances", (req, res, next) => {
+    res.locals.courseId = req.params.id;
+    res.locals.scheduleId = req.params.scheduleId;
+    res.locals.lessonId = req.params.lessonId;
+    next();
+}, attendancesRoutes);
 
 // Add error handling middleware
 app.use(function (err: any, req: any, res: any, next: any) {

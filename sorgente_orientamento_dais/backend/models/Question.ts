@@ -11,7 +11,7 @@ const questionSchema = new mongoose.Schema({
         required: true,
         minLength: 5
     },
-    closed: {
+    isClosed: {
         type: mongoose.SchemaTypes.Boolean,
         required: true,
         default: false
@@ -21,6 +21,13 @@ const questionSchema = new mongoose.Schema({
         required: true,
         default: Date.now()
     },
+    likes: [{
+        userId: {
+            type: mongoose.SchemaTypes.ObjectId,
+            required: true,
+            ref: 'User'
+        }
+    }],
     answers: [{
         userId: {
             type: mongoose.SchemaTypes.ObjectId,
@@ -47,6 +54,25 @@ questionSchema.methods.addAnswer = function(userId, text): boolean {
         userId: userId,
         text: text
     });
+
+    return true;
+}
+
+questionSchema.methods.addLike = function(userId): boolean {
+    if (this.likes.find(like => like.userId == userId)) return false;
+
+    this.likes.push({
+        userId: userId
+    });
+
+    return true;
+}
+
+questionSchema.methods.removeLike = function(userId): boolean {
+    const like = this.likes.find(like => like.userId == userId);
+    if (!like) return false;
+
+    this.likes.splice(this.likes.indexOf(like), 1);
 
     return true;
 }

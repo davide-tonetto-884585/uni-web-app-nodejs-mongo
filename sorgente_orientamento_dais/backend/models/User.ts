@@ -15,6 +15,10 @@ export interface User extends mongoose.Document {
     gender: string,
     studentData: {
         fieldOfStudy: string,
+        inscriptions: [{
+            courseId: mongoose.Schema.Types.ObjectId,
+            courseScheduleId: mongoose.Schema.Types.ObjectId,
+        }],
         schoolId: mongoose.Schema.Types.ObjectId
     },
     teacherData: {
@@ -27,8 +31,9 @@ export interface User extends mongoose.Document {
     setPassword: (pwd: string) => void,
     validatePassword: (pwd: string) => boolean,
     hasAdminRole: () => boolean,
-    setAdmin: () => void
-    hasTeacherRole: () => boolean
+    setAdmin: () => void,
+    hasTeacherRole: () => boolean,
+    hasStudentRole: () => boolean
 }
 
 const userSchema = new mongoose.Schema({
@@ -88,6 +93,16 @@ const userSchema = new mongoose.Schema({
                 enum: ['Art school', 'IT technical institute', 'Scientific lyceum'],
                 required: true
             },
+            inscriptions: [{
+                courseId: {
+                    type: mongoose.SchemaTypes.ObjectId,
+                    ref: 'Course',
+                },
+                courseScheduleId: {
+                    type: mongoose.SchemaTypes.ObjectId,
+                    ref: 'CourseSchedule',
+                }
+            }],
             schoolId: {
                 type: mongoose.SchemaTypes.ObjectId,
                 ref: 'schools',
@@ -156,6 +171,10 @@ userSchema.methods.setAdmin = function () {
 
 userSchema.methods.hasTeacherRole = function (): boolean {
     return this.teacherData !== null;
+}
+
+userSchema.methods.hasStudentRole = function (): boolean {
+    return this.studentData !== null;
 }
 
 export function getSchema() {

@@ -36,21 +36,27 @@ export interface Course extends mongoose.Document {
             addAttendance: (studentId) => void
         }],
         addLesson: (date, startTime, endTime, virtualRoomLink, virtualRoomPasscode, presencePasscode, classroomId) => boolean,
-        addInscription: (userId, isInPresence) => boolean
+        addInscription: (courseId, studentId, isInPresence) => Promise<boolean>,
+        removeInscription: (courseId, studentId) => Promise<boolean>
     }],
     questions: [{
         readonly _id: mongoose.Schema.Types.ObjectId,
         userId: mongoose.Schema.Types.ObjectId,
         text: string,
-        closed: boolean,
+        isClosed: boolean,
         timestamp: Date,
+        likes: [{
+            userId: mongoose.Schema.Types.ObjectId
+        }],
         answers: [{
             readonly _id: mongoose.Schema.Types.ObjectId,
             userId: mongoose.Schema.Types.ObjectId,
             text: string,
             timestamp: Date
         }],
-        addAnswer: (userId, text) => boolean
+        addAnswer: (userId, text) => boolean,
+        addLike: (userId) => boolean,
+        removeLike: (userId) => boolean
     }],
     addSchedule: (modality, inscriptionLimit, certificatePassword) => void;
     addQuestion: (userId, text) => void;

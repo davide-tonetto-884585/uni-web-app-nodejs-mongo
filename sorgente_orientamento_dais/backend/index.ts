@@ -134,6 +134,8 @@ const inscriptionsRoutes = require('./routes/inscriptions');
 const classroomsRoutes = require('./routes/classrooms');
 const questionsRoutes = require('./routes/questions');
 const attendancesRoutes = require('./routes/attendances');
+const statisticsRoutes = require('./routes/statistics');
+const globalSettingsRoutes = require('./routes/globalSettings');
 
 app.use("/users", usersRoutes);
 app.use("/schools", schoolsRoutes);
@@ -163,6 +165,11 @@ app.use("/courses/:id/courseSchedules/:scheduleId/lessons/:lessonId/attendances"
     res.locals.lessonId = req.params.lessonId;
     next();
 }, attendancesRoutes);
+app.use("courses/:id/statistics", (req, res, next) => {
+    res.locals.courseId = req.params.id;
+    next();
+}, statisticsRoutes);
+app.use("/globalSettings", globalSettingsRoutes);
 
 // Add error handling middleware
 app.use(function (err: any, req: any, res: any, next: any) {

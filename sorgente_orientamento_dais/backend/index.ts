@@ -184,6 +184,7 @@ app.use(function (err: any, req: any, res: any, next: any) {
 // The very last middleware will report an error 404
 // (will be eventually reached if no error occurred and if the requested endpoint is not matched by any route)
 app.use((req, res, next) => {
+    console.log("Invalid endpoint: ".red + req.url);
     res.status(404).json({statusCode: 404, error: true, errormessage: "Invalid endpoint"});
 });
 

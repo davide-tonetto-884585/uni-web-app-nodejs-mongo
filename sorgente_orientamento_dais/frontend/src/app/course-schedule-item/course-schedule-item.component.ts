@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { AulaHttpService } from '../aula-http.service';
 import { CourseHttpService } from '../course-http.service';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';

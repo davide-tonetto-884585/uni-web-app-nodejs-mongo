@@ -1,5 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 import { CourseHttpService } from '../course-http.service';
 import { UserHttpService } from '../user-http.service';
@@ -8,7 +8,7 @@ import { Course, ProgCourse, Lesson, Aula, Question } from '../models';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
 import { BACKEND_URL } from '../globals';
 import { QuestionsHttpService } from '../questions-http.service';
-import { PageEvent } from '@angular/material/paginator';
+import { LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
 import { StatisticsHttpService } from '../statistics-http.service';
 
 @Component({

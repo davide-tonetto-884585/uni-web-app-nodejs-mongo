@@ -5,7 +5,7 @@ import { CourseHttpService } from '../course-http.service';
 import { AulaHttpService } from '../aula-http.service';
 import { UserHttpService } from '../user-http.service';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { CourseModalComponent } from '../course-modal/course-modal.component';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
 

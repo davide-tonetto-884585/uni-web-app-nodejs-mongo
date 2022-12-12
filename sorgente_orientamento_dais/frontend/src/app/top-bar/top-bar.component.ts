@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { UserHttpService } from '../user-http.service';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
 import { ClassroomModalComponent } from '../classroom-modal/classroom-modal.component';

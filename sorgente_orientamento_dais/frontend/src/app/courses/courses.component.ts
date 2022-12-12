@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CourseHttpService } from '../course-http.service';
 import { Router } from '@angular/router';
 import { Course } from '../models';
-import { PageEvent } from '@angular/material/paginator';
+import { LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
 
 @Component({
   selector: 'app-courses',

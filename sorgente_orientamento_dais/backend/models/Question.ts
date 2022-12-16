@@ -50,7 +50,7 @@ const questionSchema = new mongoose.Schema({
 questionSchema.methods.addAnswer = function(userId, text): boolean {
     if (text.length < 2) return false;
 
-    this.answare.push({
+    this.answers.push({
         userId: userId,
         text: text
     });

@@ -1,10 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { AulaHttpService } from '../aula-http.service';
-import { CourseHttpService } from '../course-http.service';
+import { MatDialog } from '@angular/material/dialog';
+import { AulaHttpService } from '../services/aula-http.service';
+import { CourseHttpService } from '../services/course-http.service';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
-import { Aula, Lesson, ProgCourse } from '../models';
-import { UserHttpService } from '../user-http.service';
+import {Classroom, Lesson, courseSchedule, Teacher} from '../models';
+import { UserHttpService } from '../services/user-http.service';
 import { SECRET, FRONTEND_URL } from '../globals';
 import * as CryptoJS from 'crypto-js';
 
@@ -14,8 +14,9 @@ import * as CryptoJS from 'crypto-js';
   styleUrls: ['./course-schedule-item.component.css']
 })
 export class CourseScheduleItemComponent implements OnInit {
-  @Input() prog: ProgCourse | undefined;
-  @Input() docenti_corso: any[] = [];
+  @Input() id_corso?: string;
+  @Input() prog: courseSchedule | undefined;
+  @Input() docente_corso: Teacher | undefined;
 
   QRInfo: string | null = null;
 
@@ -30,7 +31,7 @@ export class CourseScheduleItemComponent implements OnInit {
     this.loadLessons();
   }
 
-  getId(): number | undefined {
+  getId(): string | undefined {
     return this.user_http.getId();
   }
 
@@ -44,8 +45,8 @@ export class CourseScheduleItemComponent implements OnInit {
 
   enrollStudent(in_presenza: boolean | null = null) {
     let id_stud = this.user_http.getId()
-    if (id_stud && this.prog) {
-      this.course_http.enrollStudent(this.prog.id_corso, this.prog.id, id_stud, in_presenza).subscribe({
+    if (id_stud && this.prog && this.id_corso) {
+      this.course_http.enrollStudent(this.id_corso, this.prog._id, id_stud, in_presenza).subscribe({
         next: (d) => {
           this.dialog.open(MessageDialogComponent, {
             data: {
@@ -69,17 +70,17 @@ export class CourseScheduleItemComponent implements OnInit {
   }
 
   loadLessons(): void {
-    if (this.prog) {
-      this.course_http.getLezioniProgCorso(this.prog.id_corso, this.prog.id).subscribe({
+    if (this.prog && this.id_corso) {
+      this.course_http.getLezioniProgCorso(this.id_corso, this.prog._id).subscribe({
         next: (lezioni: Lesson[]) => {
           if (this.prog) {
-            this.prog.lezioni = lezioni;
+            this.prog.lessons = lezioni;
 
-            this.prog.lezioni.forEach((les: Lesson) => {
-              if (les.id_aula) {
-                this.aula_http.getAula(les.id_aula).subscribe({
-                  next: (aula: Aula) => {
-                    les.aula = aula;
+            this.prog.lessons.forEach((les: Lesson) => {
+              if (les.classroomId) {
+                this.aula_http.getAula(les.classroomId).subscribe({
+                  next: (aula: Classroom) => {
+                    les.classroom = aula;
                   }
                 });
               }
@@ -88,40 +89,40 @@ export class CourseScheduleItemComponent implements OnInit {
         }
       });
 
-      this.course_http.getIscrittiProgCorso(this.prog.id_corso, this.prog.id).subscribe({
+      this.course_http.getIscrittiProgCorso(this.id_corso, this.prog._id).subscribe({
         next: (iscritti) => {
           if (this.prog)
-            this.prog.iscritti = iscritti;
+            this.prog.inscriptions = iscritti;
         }
       })
     }
   }
 
   isProgInCorso(): boolean {
-    return this.prog?.lezioni != undefined && this.prog.lezioni.length > 0 && this.prog.lezioni.every(les => new Date(les.data) >= new Date());
+    return this.prog?.lessons != undefined && this.prog.lessons.length > 0 && this.prog.lessons.every(les => new Date(les.date) >= new Date());
   }
 
   checkInscriptionLimit(): boolean {
-    return !this.prog?.limite_iscrizioni || (this.prog?.iscritti != undefined && this.prog.iscritti.length < this.prog?.limite_iscrizioni);
+    return !this.prog?.inscriptionLimit || (this.prog?.inscriptions != undefined && this.prog.inscriptions.length < this.prog?.inscriptionLimit);
   }
 
   isInscriptionLimitReached(): boolean {
-    return this.prog != undefined && this.prog.limite_iscrizioni != null && this.prog.iscritti != undefined && this.prog.iscritti.length >= this.prog.limite_iscrizioni;
+    return this.prog != undefined && this.prog.inscriptionLimit != null && this.prog.inscriptions != undefined && this.prog.inscriptions.length >= this.prog.inscriptionLimit;
   }
 
   getFreeSetsCount(): number | undefined {
-    if (this.prog?.limite_iscrizioni == null) return undefined;
-    if (this.prog.iscritti) {
-      return this.prog?.limite_iscrizioni - this.prog.iscritti.length;
+    if (this.prog?.inscriptionLimit == null) return undefined;
+    if (this.prog.inscriptions) {
+      return this.prog?.inscriptionLimit - this.prog.inscriptions.length;
     } else return undefined;
   }
 
   isCourseTeacher(): boolean {
     if (this.getId() == undefined) return false;
-    else return this.docenti_corso.some(doc => doc.id === this.getId());
+    else return this.docente_corso?._id === this.getId();
   }
 
-  showQR(id_corso: number, id_prog_corso: number, id_lezione: number, passcode: string): void {
+  showQR(id_corso: string, id_prog_corso: string, id_lezione: string, passcode: string): void {
     this.QRInfo = `${FRONTEND_URL}/login?pres_code=${id_corso}.${id_prog_corso}.${id_lezione}.${CryptoJS.AES.encrypt(passcode, SECRET).toString()}`;
     console.log(this.QRInfo) //TODO: togliere
   }

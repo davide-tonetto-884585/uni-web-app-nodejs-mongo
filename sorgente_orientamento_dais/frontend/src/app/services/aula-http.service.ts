@@ -3,8 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular
 import { tap, catchError } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 
-import { Course, Lesson, ProgCourse, Aula } from './models';
-import { BACKEND_URL, FRONTEND_URL } from './globals';
+import { Course, Lesson, courseSchedule, Classroom } from '../models';
+import { BACKEND_URL, FRONTEND_URL } from '../globals';
 import { UserHttpService } from './user-http.service';
 
 @Injectable({
@@ -20,7 +20,7 @@ export class AulaHttpService {
     return {
       headers: new HttpHeaders({
         'authorization': 'Bearer ' + this.user_http.getToken(),
-        'cache-control': 'no-cache'
+        'cache-control': 'no-cache',
       }),
       params: new HttpParams({ fromObject: params })
     };
@@ -40,29 +40,29 @@ export class AulaHttpService {
   }
 
   // restituisce un'aula
-  getAula(id_aula: number): Observable<Aula> {
-    return this.http.get<Aula>(
-      `${BACKEND_URL}/aule/${id_aula}`
+  getAula(id_aula: string): Observable<Classroom> {
+    return this.http.get<Classroom>(
+      `${BACKEND_URL}/classrooms/${id_aula}`
     ).pipe(catchError(this.handleError));
   }
 
   // restituisce tutte le aule presenti nel database
-  getAule(): Observable<Aula[]> {
-    return this.http.get<Aula[]>(
-      `${BACKEND_URL}/aule`
+  getAule(): Observable<Classroom[]> {
+    return this.http.get<Classroom[]>(
+      `${BACKEND_URL}/classrooms`
     ).pipe(catchError(this.handleError));
   }
 
   // aggiunge un'aula con le informazioni passate
-  addAula(aula: Aula | any): Observable<any> {
+  addAula(aula: Classroom | any): Observable<any> {
     const form_data = new FormData();
     Object.keys(aula).forEach((key) => {
       form_data.append(key, aula[key]);
     });
 
     return this.http.post(
-      `${BACKEND_URL}/aule`,
-      form_data, 
+      `${BACKEND_URL}/classrooms`,
+      form_data,
       this.createOptions()
     ).pipe(catchError(this.handleError));
   }

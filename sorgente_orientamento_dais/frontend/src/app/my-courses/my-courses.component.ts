@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Course, ProgCourse, Lesson, Aula } from '../models';
-import { CourseHttpService } from '../course-http.service';
-import { AulaHttpService } from '../aula-http.service';
-import { UserHttpService } from '../user-http.service';
+import { Course, courseSchedule, Lesson, Classroom } from '../models';
+import { CourseHttpService } from '../services/course-http.service';
+import { AulaHttpService } from '../services/aula-http.service';
+import { UserHttpService } from '../services/user-http.service';
 import { Router } from '@angular/router';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { CourseModalComponent } from '../course-modal/course-modal.component';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
 
@@ -37,13 +37,13 @@ export class MyCoursesComponent implements OnInit {
     return this.user_http.isTeacher();
   }
 
-  getId(): number {
+  getId(): string {
     let id = this.user_http.getId();
     if (id) return id;
-    else return -1;
+    else return '';
   }
 
-  unsubscribeStudent(id_corso: number, id_prog: number, id_studente: number) {
+  unsubscribeStudent(id_corso: string, id_prog: string, id_studente: string) {
     this.course_http.unsubscribeStudent(id_corso, id_prog, id_studente).subscribe({
       next: () => {
         this.refresh();
@@ -61,17 +61,17 @@ export class MyCoursesComponent implements OnInit {
         this.course_http.getInscriptionsStudent(id).subscribe({
           next: (corsi: any[]) => {
             this.courses = corsi;
-            
+
             this.courses.forEach((corso) => {
               this.course_http.getLezioniProgCorso(corso.id, corso.id_programmazione_corso).subscribe({
                 next: (lezioni: Lesson[]) => {
                   corso.lezioni = lezioni
 
                   corso.lezioni.forEach((les: Lesson) => {
-                    if (les.id_aula) {
-                      this.aula_http.getAula(les.id_aula).subscribe({
-                        next: (aula: Aula) => {
-                          les.aula = aula;
+                    if (les.classroomId) {
+                      this.aula_http.getAula(les.classroomId).subscribe({
+                        next: (aula: Classroom) => {
+                          les.classroom = aula;
                         }
                       });
                     }
@@ -94,7 +94,7 @@ export class MyCoursesComponent implements OnInit {
   openCourseModal(course: Course) {
     const dialog = this.dialog.open(CourseModalComponent, {
       data: {
-        isNew: course.id == -1 ? true : false,
+        isNew: course._id === '',
         course: course
       }
     });
@@ -102,7 +102,7 @@ export class MyCoursesComponent implements OnInit {
     dialog.afterClosed().subscribe(() => this.refresh());
   }
 
-  getCertificate(id_corso: number, id_prog_corso: number): void {
+  getCertificate(id_corso: string, id_prog_corso: string): void {
     this.course_http.getCertificate(id_corso, id_prog_corso).subscribe({
       next: (response) => {
         let fileName = 'certificate';

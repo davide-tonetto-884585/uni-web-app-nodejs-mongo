@@ -1,15 +1,15 @@
-import {authorize, Role} from "../index";
+import {authorize, Role, upload} from "../index";
 import * as Course from '../models/Course';
 
 const express = require('express');
 const router = express.Router();
 
 // add schedule to course
-router.post('/', authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
+router.post('/', upload.array(), authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
     let course = await Course.getModel().findOne({_id: res.locals.courseId});
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
 
-    if (!req.auth.roles.includes(Role.Admin) && course.teacherId !== req.auth.id)
+    if (!req.auth.roles.includes(Role.Admin) && course.teacherId != req.auth.id)
         return next({
             statusCode: 401,
             error: true,
@@ -28,7 +28,7 @@ router.post('/', authorize([Role.Admin, Role.Teacher]), async (req, res, next) =
 });
 
 // modify course schedule
-router.put('/:scheduleId', authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
+router.put('/:scheduleId', upload.array(), authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
     // get course with only the schedule we need
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
@@ -39,7 +39,7 @@ router.put('/:scheduleId', authorize([Role.Admin, Role.Teacher]), async (req, re
 
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
 
-    if (!req.auth.roles.includes(Role.Admin) && course.teacherId !== req.auth.id)
+    if (!req.auth.roles.includes(Role.Admin) && course.teacherId != req.auth.id)
         return next({
             statusCode: 401,
             error: true,

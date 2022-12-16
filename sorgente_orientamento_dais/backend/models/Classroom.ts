@@ -1,5 +1,4 @@
 import * as mongoose from "mongoose";
-import {Course} from "./Course";
 
 export interface Classroom extends mongoose.Document {
     readonly _id: mongoose.Schema.Types.ObjectId,

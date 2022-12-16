@@ -1,14 +1,14 @@
 <div class="card" *ngIf="!card">
     <div class="row g-0">
         <div class="col-md-4">
-            <img [src]="course?.immagine_copertina ? this.BACKEND_URL + course?.immagine_copertina : '/assets/images/copertina_corso_default.jpg'"
+            <img [src]="course?.image ? this.BACKEND_URL + '/' + course?.image.replace('\\', '/') : '/assets/images/copertina_corso_default.jpg'"
                 class="img-fluid rounded-start h-100 w-100" alt="...">
         </div>
         <div class="col-md-8">
             <div class="card-body">
-                <h5 class="card-title">{{ course?.titolo }}</h5>
-                <p class="descr card-text">{{ (course?.descrizione | slice:0:250) + '...' }}</p>
-                <p class="card-text"><small class="text-muted">Language: {{ course?.lingua }}</small></p>
+                <h5 class="card-title">{{ course?.title }}</h5>
+                <p class="descr card-text">{{ (course?.description | slice:0:250) + '...' }}</p>
+                <p class="card-text"><small class="text-muted">Language: {{ course?.language }}</small></p>
                 <button (click)="navigateToCourseDetail()" type="button" class="btn btn-outline-danger">Details</button>
                 <ng-content></ng-content>
             </div>
@@ -18,10 +18,10 @@
 
 <div class="card" *ngIf="card" (click)="navigateToCourseDetail()">
     <img class="img-fluid h-100 w-100" alt="100%x280"
-        [src]="course?.immagine_copertina ? this.BACKEND_URL + course?.immagine_copertina : '/assets/images/copertina_corso_default.jpg'">
+        [src]="course?.image ? this.BACKEND_URL + '/' + course?.image.replace('\\', '/') : '/assets/images/copertina_corso_default.jpg'">
     <div class="card-body">
-        <h4 class="card-title">{{ course?.titolo }}</h4>
-        <p class="descr card-text">{{ (course?.descrizione | slice:0:250) + '...' }}</p>
-        <p class="card-text"><small class="text-muted">Language: {{ course?.lingua }}</small></p>
+        <h4 class="card-title">{{ course?.title }}</h4>
+        <p class="descr card-text">{{ (course?.description | slice:0:250) + '...' }}</p>
+        <p class="card-text"><small class="text-muted">Language: {{ course?.language }}</small></p>
     </div>
 </div>

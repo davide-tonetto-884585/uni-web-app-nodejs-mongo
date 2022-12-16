@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { UserHttpService } from '../user-http.service';
+import { UserHttpService } from '../services/user-http.service';
 import { Router } from '@angular/router';
 
 import { User } from '../models'
@@ -12,7 +12,7 @@ import { User } from '../models'
 })
 export class StudentSignupComponent implements OnInit {
   errmessage: string | undefined;
-  user: User = { email: '', password: null, nome: '', cognome: '', data_nascita: '', sesso: '' };
+  user: User = { mail: '', password: null, name: '', surname: '', birthdate: '', gender: '' };
 
   constructor(private user_http: UserHttpService, private router: Router) { }
 

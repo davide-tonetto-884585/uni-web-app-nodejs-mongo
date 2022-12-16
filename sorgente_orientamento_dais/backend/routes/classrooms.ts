@@ -1,5 +1,5 @@
 import * as Classroom from "../models/Classroom";
-import {authorize, Role} from "../index";
+import {authorize, Role, upload} from "../index";
 
 const express = require('express');
 const router = express.Router();
@@ -17,7 +17,7 @@ router.get('/', (req, res, next) => {
     });
 });
 
-router.post('/', authorize([Role.Admin]), (req, res, next) => {
+router.post('/', upload.array(), authorize([Role.Admin]), (req, res, next) => {
     if (!req.body.name || !req.body.building || !req.body.campus || !req.body.capacity) {
         return next({statusCode: 400, error: true, errormessage: "Missing parameters"});
     }

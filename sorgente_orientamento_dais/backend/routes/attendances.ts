@@ -1,15 +1,15 @@
-import {authorize, Role} from "../index";
+import {authorize, Role, upload} from "../index";
 import * as Course from "../models/Course";
 
 const express = require('express');
 const router = express.Router();
 
-router.post('/', authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.post('/', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     if (!req.body.studentId || !req.body.presencePasscode) {
         return next({statusCode: 400, error: true, errormessage: "Missing parameters."});
     }
 
-    if (req.auth.roles.includes(Role.Student) && req.auth.id !== req.body.studentId) {
+    if (req.auth.roles.includes(Role.Student) && req.auth.id != req.body.studentId) {
         return next({statusCode: 401, error: true, errormessage: "You are not authorized to add an attendance for another student."});
     }
 
@@ -21,10 +21,10 @@ router.post('/', authorize([Role.Admin, Role.Teacher, Role.Student]), async (req
     });
     if (!course || !course.schedules[0]) return next({statusCode: 409, error: true, errormessage: "Course not found."});
 
-    let lesson = course.schedules[0].lessons.find((l) => l._id === res.locals.lessonId);
+    let lesson = course.schedules[0].lessons.find((l) => l._id == res.locals.lessonId);
     if (!lesson) return next({statusCode: 409, error: true, errormessage: "Lesson not found."});
 
-    if (!course.schedules[0].inscriptions.find((i) => i.studentId === req.body.studentId))
+    if (!course.schedules[0].inscriptions.find((i) => i.studentId == req.body.studentId))
         return next({statusCode: 409, error: true, errormessage: "Student not subscribed."});
 
     if (!lesson.addAttendance(req.body.studentId, req.body.presencePasscode))

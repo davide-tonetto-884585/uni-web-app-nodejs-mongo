@@ -11,7 +11,7 @@ router.get('/', (req, res, next) => {
 
     let filter = Object();
     if (_id) filter._id = _id;
-    if (name) filter.DENOMINAZIONESCUOLA = name;
+    if (name) filter.DENOMINAZIONESCUOLA = {$regex: '.*' + name + '.*'};
 
     let query = School.getModel().find(filter);
     if (skip) query.skip(skip);

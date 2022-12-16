@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { User } from '../models';
-import { UserHttpService } from '../user-http.service';
+import { UserHttpService } from '../services/user-http.service';
 
 @Component({
   selector: 'app-teacher-signup',
@@ -10,7 +10,7 @@ import { UserHttpService } from '../user-http.service';
 })
 export class TeacherSignupComponent implements OnInit {
   errmessage: string | undefined;
-  user: User = { email: '', password: null, nome: '', cognome: '', data_nascita: '', sesso: '' };
+  user: User = { mail: '', password: null, name: '', surname: '', birthdate: '', gender: '' };
 
   constructor(
     private user_http: UserHttpService,

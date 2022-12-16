@@ -27,7 +27,7 @@ export class CourseCardComponent implements OnInit {
   }
 
   navigateToCourseDetail(): void {
-    if (this.course?.id)
-      this.router.navigate([`/course/${this.course?.id}`]);
+    if (this.course?._id)
+      this.router.navigate([`/course/${this.course?._id}`]);
   }
 }

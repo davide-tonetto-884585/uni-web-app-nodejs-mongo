@@ -22,7 +22,7 @@ router.get('/', authorize([Role.Admin, Role.Teacher]), async (req, res, next) =>
 
     console.log(course)
 
-    if (req.auth.roles.includes(Role.Teacher) && course.teacherId !== req.auth.id)
+    if (req.auth.roles.includes(Role.Teacher) && course.teacherId != req.auth.id)
         return next({
             statusCode: 401,
             error: true,

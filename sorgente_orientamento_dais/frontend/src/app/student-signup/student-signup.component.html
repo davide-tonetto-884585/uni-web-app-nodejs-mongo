@@ -9,8 +9,8 @@
 
         <div class="mb-3">
             <label for="inputEmail" class="sr-only">Email address</label>
-            <input type="email" #mail="ngModel" name="mail" [(ngModel)]="user.email" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
-                class="form-control" required id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email">
+            <input type="email" #mail="ngModel" name="mail" [(ngModel)]="user.mail" pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+                   class="form-control" required id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email">
             <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
         </div>
 
@@ -30,8 +30,8 @@
 
         <div class="mb-3">
             <label for="inputName" class="sr-only">Name</label>
-            <input type="text" #nome="ngModel" required name="nome" [(ngModel)]="user.nome" class="form-control"
-                id="inputName" placeholder="Enter name">
+            <input type="text" #nome="ngModel" required name="nome" [(ngModel)]="user.name" class="form-control"
+                   id="inputName" placeholder="Enter name">
         </div>
 
         <div [hidden]="nome.valid || nome.pristine" class="alert alert-danger">
@@ -40,7 +40,7 @@
 
         <div class="mb-3">
             <label for="inputSurname" class="sr-only">Surname</label>
-            <input type="text" #cognome="ngModel" required name="surname" [(ngModel)]="user.cognome"
+            <input type="text" #cognome="ngModel" required name="surname" [(ngModel)]="user.surname"
                 class="form-control" id="inputSurname" placeholder="Enter surname">
         </div>
 
@@ -50,7 +50,7 @@
 
         <div class="mb-3">
             <label for="inputBirthdate" class="sr-only">Birthdate</label>
-            <input type="text" #data_nascita="ngModel" required name="birthdate" [(ngModel)]="user.data_nascita"
+            <input type="text" #data_nascita="ngModel" required name="birthdate" [(ngModel)]="user.birthdate"
                 class="form-control" id="inputBirthdate" placeholder="Enter birthdate (gg/mm/yyyy)">
         </div>
 
@@ -60,7 +60,7 @@
 
         <div class="mb-3">
             <label for="genderSelect" class="form-label">Gender</label>
-            <select id="genderSelect" class="form-select" required name="gender" #gender="ngModel" [(ngModel)]="user.sesso">
+            <select id="genderSelect" class="form-select" required name="gender" #gender="ngModel" [(ngModel)]="user.gender">
                 <option value="M">Male</option>
                 <option value="F">Female</option>
                 <option (value)="null">Other</option>

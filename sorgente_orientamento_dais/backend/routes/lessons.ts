@@ -1,4 +1,4 @@
-import {authorize, Role} from "../index";
+import {authorize, Role, upload} from "../index";
 import * as Course from '../models/Course';
 
 const express = require('express');
@@ -18,7 +18,7 @@ router.get('/', async (req, res, next) => {
 })
 
 //insert new lesson
-router.post('/', authorize([Role.Teacher, Role.Admin]), async (req, res, next) => {
+router.post('/', upload.array(), authorize([Role.Teacher, Role.Admin]), async (req, res, next) => {
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
         "schedules._id": res.locals.scheduleId,
@@ -28,7 +28,7 @@ router.post('/', authorize([Role.Teacher, Role.Admin]), async (req, res, next) =
 
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
 
-    if (!req.auth.roles.includes(Role.Admin) && course.teacherId !== req.auth.id)
+    if (!req.auth.roles.includes(Role.Admin) && course.teacherId != req.auth.id)
         return next({
             statusCode: 401,
             error: true,
@@ -56,7 +56,7 @@ router.post('/', authorize([Role.Teacher, Role.Admin]), async (req, res, next) =
 })
 
 // modify lesson
-router.put('/:lessonId', authorize([Role.Teacher, Role.Admin]), async (req, res, next) => {
+router.put('/:lessonId', upload.array(), authorize([Role.Teacher, Role.Admin]), async (req, res, next) => {
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
         "schedules._id": res.locals.scheduleId,
@@ -71,7 +71,7 @@ router.put('/:lessonId', authorize([Role.Teacher, Role.Admin]), async (req, res,
 
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
 
-    if (!req.auth.roles.includes(Role.Admin) && course.teacherId !== req.auth.id)
+    if (!req.auth.roles.includes(Role.Admin) && course.teacherId != req.auth.id)
         return next({
             statusCode: 401,
             error: true,

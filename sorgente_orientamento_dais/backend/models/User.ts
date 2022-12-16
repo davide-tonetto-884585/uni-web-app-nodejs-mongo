@@ -15,10 +15,10 @@ export interface User extends mongoose.Document {
     gender: string,
     studentData: {
         fieldOfStudy: string,
-        inscriptions: [{
+        inscriptions: {
             courseId: mongoose.Schema.Types.ObjectId,
             courseScheduleId: mongoose.Schema.Types.ObjectId,
-        }],
+        }[],
         schoolId: mongoose.Schema.Types.ObjectId
     },
     teacherData: {

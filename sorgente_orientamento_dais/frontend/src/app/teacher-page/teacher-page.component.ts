@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CourseHttpService } from '../course-http.service';
+import { CourseHttpService } from '../services/course-http.service';
 import { BACKEND_URL } from '../globals';
 import { Course } from '../models';
-import { UserDataHttpService } from '../user-data-http.service';
-import { UserHttpService } from '../user-http.service';
+import { UserDataHttpService } from '../services/user-data-http.service';
+import { UserHttpService } from '../services/user-http.service';
 
 @Component({
   selector: 'app-teacher-page',

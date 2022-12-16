@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { AulaHttpService } from '../aula-http.service';
-import { Aula } from '../models';
+import { MatDialog } from '@angular/material/dialog';
+import { AulaHttpService } from '../services/aula-http.service';
+import { Classroom } from '../models';
 
 @Component({
   selector: 'app-classroom-modal',
@@ -9,8 +9,8 @@ import { Aula } from '../models';
   styleUrls: ['./classroom-modal.component.css']
 })
 export class ClassroomModalComponent implements OnInit {
-  aule: Aula[] = []
-  new_aule: Aula[] = []
+  aule: Classroom[] = []
+  new_aule: Classroom[] = []
   canSave = false;
 
   constructor(
@@ -27,7 +27,7 @@ export class ClassroomModalComponent implements OnInit {
   }
 
   addAula(): void {
-    this.new_aule.push({} as Aula);
+    this.new_aule.push({} as Classroom);
     this.canSave = true;
   }
 

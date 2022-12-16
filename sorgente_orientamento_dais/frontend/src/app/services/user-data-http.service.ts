@@ -1,26 +1,27 @@
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { catchError, Observable, throwError } from 'rxjs';
-import { BACKEND_URL } from './globals';
-import { Student, Teacher, User } from './models';
-import { UserHttpService } from './user-http.service';
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {Router} from '@angular/router';
+import {catchError, Observable, throwError} from 'rxjs';
+import {BACKEND_URL} from '../globals';
+import {Student, Teacher, User} from '../models';
+import {UserHttpService} from './user-http.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserDataHttpService {
 
-  constructor(private http: HttpClient, private user_http: UserHttpService) { }
+  constructor(private http: HttpClient, private user_http: UserHttpService) {
+  }
 
   // crea le opzioni di base per le richieste HTTP
   private createOptions(params = {}) {
     return {
       headers: new HttpHeaders({
         'authorization': 'Bearer ' + this.user_http.getToken(),
-        'cache-control': 'no-cache'
+        'cache-control': 'no-cache',
       }),
-      params: new HttpParams({ fromObject: params })
+      params: new HttpParams({fromObject: params})
     };
   }
 
@@ -39,25 +40,25 @@ export class UserDataHttpService {
   }
 
   // richiesta al backend delle informazioni di un utente
-  getUserData(user_id: number): Observable<User> {
+  getUserData(user_id: string): Observable<User> {
     return this.http.get<User>(
-      `${BACKEND_URL}/utenti/${user_id}`,
+      `${BACKEND_URL}/users/${user_id}`,
       this.createOptions()
     ).pipe(catchError(this.handleError));
   }
 
   // richiesta al backend dell informazioni di un docente
-  getTeacherData(teacher_id: number): Observable<Teacher> {
+  getTeacherData(teacher_id: string): Observable<Teacher> {
     return this.http.get<Teacher>(
-      `${BACKEND_URL}/utenti/docenti/${teacher_id}`,
+      `${BACKEND_URL}/users/teachers/${teacher_id}`,
       this.createOptions()
     ).pipe(catchError(this.handleError));
   }
 
   // richiesta al backend delle informazioni di uno studente
-  getStudentData(student_id: number): Observable<Student> {
+  getStudentData(student_id: string): Observable<Student> {
     return this.http.get<Student>(
-      `${BACKEND_URL}/utenti/studenti/${student_id}`,
+      `${BACKEND_URL}/users/students/${student_id}`,
       this.createOptions()
     ).pipe(catchError(this.handleError));
   }
@@ -70,12 +71,13 @@ export class UserDataHttpService {
     });
 
     Object.keys(studentData).forEach((key) => {
-      form_data.append(key, studentData[key]);
+      if (!form_data.has(key))
+        form_data.append(key, studentData[key]);
     });
 
     return this.http.put(
-      `${BACKEND_URL}/utenti/studenti/${user.id}`,
-      form_data, 
+      `${BACKEND_URL}/users/students/${studentData._id}`,
+      form_data,
       this.createOptions()
     ).pipe(catchError(this.handleError));
   }
@@ -88,12 +90,13 @@ export class UserDataHttpService {
     });
 
     Object.keys(teacherData).forEach((key) => {
-      form_data.append(key, teacherData[key]);
+      if (!form_data.has(key))
+        form_data.append(key, teacherData[key]);
     });
 
     return this.http.put(
-      `${BACKEND_URL}/utenti/docenti/${user.id}`,
-      form_data, 
+      `${BACKEND_URL}/users/teachers/${teacherData._id}`,
+      form_data,
       this.createOptions()
     ).pipe(catchError(this.handleError));
   }

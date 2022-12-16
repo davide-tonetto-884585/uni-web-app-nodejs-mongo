@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
-import { UserHttpService } from '../user-http.service';
+import { UserHttpService } from '../services/user-http.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { CourseHttpService } from '../course-http.service';
+import { CourseHttpService } from '../services/course-http.service';
 
 import * as CryptoJS from 'crypto-js';
 import { SECRET } from '../globals';
@@ -40,7 +40,7 @@ export class UserLoginComponent implements OnInit {
     }
   }
 
-  addAttendance(id_studente: number): void {
+  addAttendance(id_studente: string): void {
     if (this.pres_code != undefined) {
       let dot_index = this.pres_code.indexOf('.');
       let id_corso = this.pres_code.substring(0, dot_index);
@@ -52,7 +52,7 @@ export class UserLoginComponent implements OnInit {
         SECRET
       ).toString(CryptoJS.enc.Utf8);
 
-      this.course_http.addPresenzaCorso(+id_corso, +id_prog_corso, +id_lezione, +id_studente, passcode).subscribe({
+      this.course_http.addPresenzaCorso(id_corso, id_prog_corso, id_lezione, id_studente, passcode).subscribe({
         next: (d) => {
           this.router.navigate(['/home'], { queryParams: { error: false, message: 'Attendance registered successfully' } })
         },

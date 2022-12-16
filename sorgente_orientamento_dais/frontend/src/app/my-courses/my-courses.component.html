@@ -6,13 +6,14 @@
         </div>
         <div class="col d-flex justify-content-end">
             <button *ngIf="isTeacher()" type="button" class="btn btn-outline-danger m-3" (click)="openCourseModal({
-                id: -1,
-                titolo: '',
-                descrizione: '',
-                lingua: '',
-                immagine_copertina: '',
-                file_certificato: '',
-                abilitato: true
+                _id: '',
+                title: '',
+                description: '',
+                language: '',
+                image: '',
+                certificateFile: '',
+                enabled: true,
+                teacherId: ''
             })">Create new course</button>
         </div>
     </div>

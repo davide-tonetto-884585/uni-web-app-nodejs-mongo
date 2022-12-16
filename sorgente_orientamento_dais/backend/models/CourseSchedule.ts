@@ -69,7 +69,7 @@ courseScheduleSchema.methods.addInscription = async function (courseId, studentI
     } else return false
 
     this.inscriptions.push({
-        userId: studentId,
+        studentId: studentId,
         isInPresence: isInPresence
     });
 

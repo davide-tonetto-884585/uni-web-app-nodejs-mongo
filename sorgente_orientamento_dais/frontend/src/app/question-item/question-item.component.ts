@@ -1,10 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
-import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
+import {Component, Input, OnInit} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {MessageDialogComponent} from '../message-dialog/message-dialog.component';
 
-import { Question } from '../models';
-import { QuestionsHttpService } from '../questions-http.service';
-import { UserHttpService } from '../user-http.service';
+import {Answer, Question, Teacher} from '../models';
+import {QuestionsHttpService} from '../services/questions-http.service';
+import {UserHttpService} from '../services/user-http.service';
 
 @Component({
   selector: 'app-question-item',
@@ -12,9 +12,10 @@ import { UserHttpService } from '../user-http.service';
   styleUrls: ['./question-item.component.css']
 })
 export class QuestionItemComponent implements OnInit {
+  @Input() id_corso!: string;
   @Input() question: Question | undefined;
-  @Input() docenti_corso: any[] = [];
-  replies: Question[] = [];
+  @Input() docente_corso: Teacher | undefined;
+  replies: Answer[] = [];
   answer_text: string = '';
   utenti_like: any[] = [];
 
@@ -22,7 +23,8 @@ export class QuestionItemComponent implements OnInit {
     private user_http: UserHttpService,
     private question_http: QuestionsHttpService,
     private dialog: MatDialog
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.reloadLike();
@@ -30,7 +32,7 @@ export class QuestionItemComponent implements OnInit {
 
   reloadLike(): void {
     if (this.question)
-      this.question_http.getLikeDomanda(this.question?.id_corso, this.question?.id).subscribe({
+      this.question_http.getLikeDomanda(this.id_corso, this.question._id).subscribe({
         next: (res) => {
           this.utenti_like = res;
         }
@@ -44,8 +46,8 @@ export class QuestionItemComponent implements OnInit {
   alreadyLiked(): boolean {
     let res = false;
 
-    this.utenti_like.every((utente) => {
-      if (utente.id == this.user_http.getId()) {
+    this.utenti_like.every((like) => {
+      if (like.userId == this.user_http.getId()) {
         res = true;
         return false;
       }
@@ -58,10 +60,10 @@ export class QuestionItemComponent implements OnInit {
 
   addLikeDomanda(): void {
     if (this.question)
-      this.question_http.addLikeDomanda(this.question?.id_corso, this.question?.id).subscribe({
+      this.question_http.addLikeDomanda(this.id_corso, this.question?._id).subscribe({
         next: (res) => {
-          if (this.question && this.question.total_likes != null) {
-            this.question.total_likes++;
+          if (this.question && this.question.likes?.length != null) {
+            this.question.likes.push({userId: this.user_http.getId()});
           }
           this.reloadLike();
         }
@@ -69,27 +71,21 @@ export class QuestionItemComponent implements OnInit {
   }
 
   canAnswer(): boolean {
-    let res: boolean = false;
-    if (this.user_http.getId() && !this.question?.chiusa) {
-      if (this.user_http.getId() === this.question?.id_utente)
-        res = true;
-
-      this.docenti_corso.every((docente) => {
-        if (docente.id === this.user_http.getId()) {
-          res = true;
-          return false;
-        }
-
+    if (this.user_http.getId() && !this.question?.isClosed) {
+      if (this.user_http.getId() === this.question?.userId._id)
         return true;
-      })
+
+      if (this.docente_corso?._id === this.user_http.getId()) {
+        return true;
+      }
     }
 
-    return res;
+    return false;
   }
 
   loadReplies(): void {
     if (this.question)
-      this.question_http.getRisposteDomanda(this.question?.id_corso, this.question?.id).subscribe({
+      this.question_http.getRisposteDomanda(this.id_corso, this.question._id).subscribe({
         next: (res) => {
           this.replies = res;
         }
@@ -97,14 +93,10 @@ export class QuestionItemComponent implements OnInit {
   }
 
   postAnsware(): void {
-    if (this.answer_text == '') return;
+    const user_id = this.user_http.getId();
+    if (this.answer_text == '' || !user_id || !this.question) return;
 
-    this.question_http.addDomandaCorso({
-      id_corso: this.question?.id_corso,
-      id_utente: this.user_http.getId(),
-      testo: this.answer_text,
-      id_domanda_corso: this.question?.id
-    }).subscribe({
+    this.question_http.addRispostaCorso(this.id_corso, user_id, this.question._id, this.answer_text).subscribe({
       next: (res) => {
         this.answer_text = '';
         this.loadReplies();
@@ -123,10 +115,10 @@ export class QuestionItemComponent implements OnInit {
 
   chiudiDomanda(): void {
     if (this.question)
-      this.question_http.closeDomanda(this.question?.id_corso, this.question?.id).subscribe({
+      this.question_http.closeDomanda(this.id_corso, this.question._id).subscribe({
         next: (res) => {
           if (this.question)
-            this.question.chiusa = true;
+            this.question.isClosed = true;
         }
       })
   }

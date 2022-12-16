@@ -3,8 +3,8 @@ import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular
 import { tap, catchError } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
 
-import { Course, Lesson, ProgCourse, Aula, Question } from './models';
-import { BACKEND_URL, FRONTEND_URL } from './globals';
+import {Course, Lesson, courseSchedule, Classroom, Question, Answer} from '../models';
+import { BACKEND_URL, FRONTEND_URL } from '../globals';
 import { UserHttpService } from './user-http.service';
 
 
@@ -21,7 +21,7 @@ export class QuestionsHttpService {
     return {
       headers: new HttpHeaders({
         'authorization': 'Bearer ' + this.user_http.getToken(),
-        'cache-control': 'no-cache'
+        'cache-control': 'no-cache',
       }),
       params: new HttpParams({ fromObject: params })
     };
@@ -40,31 +40,53 @@ export class QuestionsHttpService {
     }
   }
 
-  getDomandeCorso(id_corso: number, testo: string | null, chiusa: boolean | null,
+  getDomandeCorso(id_corso: string, testo: string | null, chiusa: boolean | null,
     skip: number | null, limit: number | null, order_by: string | null): Observable<any> {
-    let params = { limit: limit, skip: skip, testo: testo, chiusa: chiusa, order_by: order_by };
+    let params = { limit: limit, skip: skip, text: testo, isClosed: chiusa, orderBy: order_by };
 
     return this.http.get<any>(
-      `${BACKEND_URL}/corsi/${id_corso}/domande`,
+      `${BACKEND_URL}/courses/${id_corso}/questions`,
       this.createOptions(Object.fromEntries(Object.entries(params).filter(([_, v]) => v != null)))
     ).pipe(catchError(this.handleError));
   }
 
-  getRisposteDomanda(id_corso: number, id_domanda: number): Observable<Question[]> {
-    return this.http.get<Question[]>(
-      `${BACKEND_URL}/corsi/${id_corso}/domande/${id_domanda}/risposte`,
+  getRisposteDomanda(id_corso: string, id_domanda: string): Observable<Answer[]> {
+    return this.http.get<Answer[]>(
+      `${BACKEND_URL}/courses/${id_corso}/questions/${id_domanda}/answers`,
       this.createOptions()
     ).pipe(catchError(this.handleError));
   }
 
-  addDomandaCorso(question: Question | any): Observable<any> {
+  addDomandaCorso(id_corso: string, id_utente: string, text: string): Observable<any> {
+    const question: any = {
+      text: text,
+      userId: id_utente,
+    }
     const form_data = new FormData();
     Object.keys(question).forEach((key) => {
       form_data.append(key, question[key]);
     });
 
     return this.http.post(
-      `${BACKEND_URL}/corsi/${question.id_corso}/domande`,
+      `${BACKEND_URL}/courses/${id_corso}/questions`,
+      form_data,
+      this.createOptions()
+    ).pipe(catchError(this.handleError)
+    );
+  }
+
+  addRispostaCorso(id_corso: string, id_utente: string, id_domanda: string, text: string): Observable<any> {
+    const question: any = {
+      text: text,
+      userId: id_utente,
+    }
+    const form_data = new FormData();
+    Object.keys(question).forEach((key) => {
+      form_data.append(key, question[key]);
+    });
+
+    return this.http.post(
+      `${BACKEND_URL}/courses/${id_corso}/questions/${id_domanda}/answers`,
       form_data,
       this.createOptions()
     ).pipe(catchError(this.handleError)
@@ -72,29 +94,29 @@ export class QuestionsHttpService {
   }
 
   // ritorna i like di una domanda
-  getLikeDomanda(id_corso: number, id_domanda: number): Observable<any[]> {
+  getLikeDomanda(id_corso: string, id_domanda: string): Observable<any[]> {
     return this.http.get<any[]>(
-      `${BACKEND_URL}/corsi/${id_corso}/domande/${id_domanda}/like`,
+      `${BACKEND_URL}/courses/${id_corso}/questions/${id_domanda}/likes`,
       this.createOptions()
     ).pipe(catchError(this.handleError))
   }
 
   // aggiunge un like ad una domanda
-  addLikeDomanda(id_corso: number, id_domanda: number): Observable<any> {
+  addLikeDomanda(id_corso: string, id_domanda: string): Observable<any> {
     return this.http.post(
-      `${BACKEND_URL}/corsi/${id_corso}/domande/${id_domanda}/like`,
-      new FormData(), 
+      `${BACKEND_URL}/courses/${id_corso}/questions/${id_domanda}/likes`,
+      new FormData(),
       this.createOptions()
     ).pipe(catchError(this.handleError))
   }
 
   // chiude una domanda esistente aperta
-  closeDomanda(id_corso: number, id_domanda: number): Observable<any> {
+  closeDomanda(id_corso: string, id_domanda: string): Observable<any> {
     let form_data = new FormData();
-    form_data.append('chiusa', 'true');
+    form_data.append('isClosed', 'true');
 
     return this.http.put(
-      `${BACKEND_URL}/corsi/${id_corso}/domande/${id_domanda}`,
+      `${BACKEND_URL}/courses/${id_corso}/questions/${id_domanda}`,
       form_data,
       this.createOptions()
     )

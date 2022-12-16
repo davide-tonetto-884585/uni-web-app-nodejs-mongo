@@ -1,4 +1,4 @@
-import {authorize, Role} from "../index";
+import {authorize, Role, upload} from "../index";
 const fs = require('fs');
 const ini = require('ini');
 
@@ -11,7 +11,7 @@ router.get('/', authorize([Role.Admin]), async (req, res, next) => {
     return res.status(200).json({error: false, errormessage: "", settings: config.SETTINGS});
 });
 
-router.put('/', authorize([Role.Admin]), async (req, res, next) => {
+router.put('/', upload.array(), authorize([Role.Admin]), async (req, res, next) => {
     let config = ini.parse(fs.readFileSync('./globalSettings.ini', 'utf-8'));
 
     if (req.body.minimumAttendancePercentage)

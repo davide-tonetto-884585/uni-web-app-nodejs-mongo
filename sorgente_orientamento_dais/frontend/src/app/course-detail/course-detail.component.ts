@@ -1,15 +1,16 @@
 import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatDialog } from '@angular/material/dialog';
 
-import { CourseHttpService } from '../course-http.service';
-import { UserHttpService } from '../user-http.service';
+import { CourseHttpService } from '../services/course-http.service';
+import { UserHttpService } from '../services/user-http.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Course, ProgCourse, Lesson, Aula, Question } from '../models';
+import {Course, courseSchedule, Lesson, Classroom, Question, Teacher} from '../models';
 import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
 import { BACKEND_URL } from '../globals';
-import { QuestionsHttpService } from '../questions-http.service';
-import { LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
-import { StatisticsHttpService } from '../statistics-http.service';
+import { QuestionsHttpService } from '../services/questions-http.service';
+import { PageEvent } from '@angular/material/paginator';
+import { StatisticsHttpService } from '../services/statistics-http.service';
+import {UserDataHttpService} from "../services/user-data-http.service";
 
 @Component({
   selector: 'app-course-detail',
@@ -17,10 +18,10 @@ import { StatisticsHttpService } from '../statistics-http.service';
   styleUrls: ['./course-detail.component.css']
 })
 export class CourseDetailComponent implements OnInit {
-  private course_id: any;
+  course_id: any;
   course: Course | undefined;
-  docenti: any[] = [];
-  prog_corso: ProgCourse[] = [];
+  docente: Teacher | undefined;
+  prog_corso: courseSchedule[] = [];
   questions: Question[] = [];
   BACKEND_URL: string = BACKEND_URL;
 
@@ -41,7 +42,8 @@ export class CourseDetailComponent implements OnInit {
     private user_http: UserHttpService,
     private question_http: QuestionsHttpService,
     public dialog: MatDialog,
-    private statistics_http: StatisticsHttpService
+    private statistics_http: StatisticsHttpService,
+    private user_data_http: UserDataHttpService
   ) { }
 
   ngOnInit(): void {
@@ -52,12 +54,11 @@ export class CourseDetailComponent implements OnInit {
     this.course_http.getCourse(this.course_id).subscribe({
       next: (course: Course) => {
         this.course = course;
-      }
-    });
-
-    this.course_http.getDocentiCorso(this.course_id).subscribe({
-      next: (docenti) => {
-        this.docenti = docenti;
+        this.user_data_http.getTeacherData(this.course?.teacherId).subscribe({
+          next: (res) => {
+            this.docente = res;
+          }
+        });
       }
     });
 
@@ -65,7 +66,7 @@ export class CourseDetailComponent implements OnInit {
 
     this.question_http.getDomandeCorso(this.course_id, null, null, this.skip, this.limit, 'like').subscribe({
       next: (res) => {
-        this.questions = res.domande;
+        this.questions = res.questions;
         this.count = res.count;
       }
     })
@@ -79,11 +80,11 @@ export class CourseDetailComponent implements OnInit {
             conf.push({
               name: `Schedule ${index + 1} (${prog.modalita})`,
               series: [
-                { 
+                {
                   name: 'Registrations',
                   value: prog.num_iscrizioni
                 },
-                { 
+                {
                   name: 'Attendance',
                   value: prog.num_presenze
                 }
@@ -99,13 +100,13 @@ export class CourseDetailComponent implements OnInit {
 
   loadProgs(in_corso: boolean | null): void {
     this.course_http.getProgrammazioniCorso(this.course_id, in_corso).subscribe({
-      next: (prog_corso: ProgCourse[]) => {
+      next: (prog_corso: courseSchedule[]) => {
         this.prog_corso = prog_corso;
       }
     });
   }
 
-  getId(): number | undefined {
+  getId(): string | undefined {
     return this.user_http.getId();
   }
 
@@ -130,20 +131,17 @@ export class CourseDetailComponent implements OnInit {
 
     this.question_http.getDomandeCorso(this.course_id, this.search_text, chiusa, this.skip, this.limit, this.order_by).subscribe({
       next: (res) => {
-        this.questions = res.domande;
+        this.questions = res.questions;
         this.count = res.count;
       }
     })
   }
 
   postQuestion(): void {
-    if (this.question_text == '') return;
+    const user_id = this.user_http.getId();
+    if (this.question_text == '' || !user_id) return;
 
-    this.question_http.addDomandaCorso({
-      id_corso: this.course_id,
-      id_utente: this.user_http.getId(),
-      testo: this.question_text,
-    }).subscribe({
+    this.question_http.addDomandaCorso(this.course_id, user_id, this.question_text).subscribe({
       next: (res) => {
         this.question_text = '';
         this.filter();
@@ -162,7 +160,7 @@ export class CourseDetailComponent implements OnInit {
 
   isCourseTeacher(): boolean {
     if (this.getId() == undefined) return false;
-    else return this.docenti.some(doc => doc.id === this.getId());
+    else return this.docente?._id === this.getId();
   }
 
   onPageChange(pageEvent: PageEvent): void {

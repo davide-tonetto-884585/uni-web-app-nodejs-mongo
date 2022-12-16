@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { CourseHttpService } from '../course-http.service';
+import { CourseHttpService } from '../services/course-http.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Course } from '../models';
 import { Observable } from 'rxjs';
@@ -32,19 +32,19 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.getCourses().subscribe({
       next: (res) => {
-        this.new_courses = res.corsi;
+        this.new_courses = res.courses;
       }
     });
-    
+
     this.getCourses(true).subscribe({
       next: (res) => {
-        this.scheduled_courses = res.corsi
+        this.scheduled_courses = res.courses
       }
     });
 
     this.getCourses(null, true).subscribe({
       next: (res) => {
-        this.popular_courses = res.corsi;
+        this.popular_courses = res.courses;
       }
     })
 
@@ -56,7 +56,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  getCourses(scheduled: boolean | null = null, popular: boolean | null = null): Observable<{ corsi: Course[], count: number }> {
+  getCourses(scheduled: boolean | null = null, popular: boolean | null = null): Observable<{ courses: Course[], count: number }> {
     return this.course_http.getCourses(this.limit, this.skip, null, null, scheduled, popular)
   }
 

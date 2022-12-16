@@ -1,22 +1,22 @@
-<h4 mat-dialog-title>{{ (!this.isNew ? 'Edit course "' + this.course.titolo + '"' : 'New course') }}</h4>
+<h4 mat-dialog-title>{{ (!this.isNew ? 'Edit course "' + this.course.title + '"' : 'New course') }}</h4>
 <div mat-dialog-content>
     <form>
         <mat-form-field class="fw" appearance="fill">
             <mat-label>Title</mat-label>
-            <input matInput placeholder="Course title..." [value]="this.course.titolo" name="titolo"
-                [(ngModel)]="this.course.titolo">
+            <input matInput placeholder="Course title..." [value]="this.course.title" name="titolo"
+                   [(ngModel)]="this.course.title">
         </mat-form-field>
 
         <mat-form-field class="fw" appearance="fill">
             <mat-label>Description</mat-label>
             <textarea matInput placeholder="Course description..." name="descrizione"
-                [(ngModel)]="this.course.descrizione">{{ this.course.descrizione }}</textarea>
+                [(ngModel)]="this.course.description">{{ this.course.description }}</textarea>
         </mat-form-field>
 
         <mat-form-field class="fw" appearance="fill">
             <mat-label>Language</mat-label>
-            <input matInput placeholder="Course language..." name="lingua" [value]="this.course.lingua"
-                [(ngModel)]="this.course.lingua">
+            <input matInput placeholder="Course language..." name="lingua" [value]="this.course.language"
+                [(ngModel)]="this.course.language">
         </mat-form-field>
 
         <div class="input-group mb-3">
@@ -31,8 +31,8 @@
                 id="inputGroupFile02" (change)="upload_file_certificato($event)">
         </div>
 
-        <input title="Course visibility" type="checkbox" name="abilitato" [checked]="this.course.abilitato"
-            [(ngModel)]="this.course.abilitato" value="remember-me">
+        <input title="Course visibility" type="checkbox" name="abilitato" [checked]="this.course.enabled"
+               [(ngModel)]="this.course.enabled" value="remember-me">
         Visible <br>
 
         <hr>
@@ -57,14 +57,14 @@
                 </mat-expansion-panel-header>
                 <mat-form-field appearance="fill" class="fw">
                     <mat-label>Modality</mat-label>
-                    <mat-select [(value)]="prog.modalita" [name]="course.id + 'modalita' + i" [(ngModel)]="prog.modalita">
-                        <mat-option [value]="'online'">
+                    <mat-select [(value)]="prog.modality" [name]="course._id + 'modalita' + i" [(ngModel)]="prog.modality">
+                        <mat-option [value]="'Online'">
                             Online
                         </mat-option>
-                        <mat-option [value]="'presenza'">
+                        <mat-option [value]="'In presence'">
                             In place
                         </mat-option>
-                        <mat-option [value]="'duale'">
+                        <mat-option [value]="'Dual'">
                             Dual
                         </mat-option>
                     </mat-select>
@@ -72,15 +72,15 @@
 
                 <mat-form-field class="fw" appearance="fill">
                     <mat-label>Inscription limit</mat-label>
-                    <input matInput type="number" placeholder="Inscription limit..." [value]="prog.limite_iscrizioni"
-                        [name]="course.id + 'limite_iscrizioni' + i" [(ngModel)]="prog.limite_iscrizioni">
+                    <input matInput type="number" placeholder="Inscription limit..." [value]="prog.inscriptionLimit"
+                           [name]="course._id + 'limite_iscrizioni' + i" [(ngModel)]="prog.inscriptionLimit">
                 </mat-form-field>
 
                 <mat-form-field class="fw" appearance="fill">
                     <mat-label>Certficate password</mat-label>
                     <input matInput type="text" placeholder="Certficate password..."
-                        [value]="prog.password_certificato" [name]="course.id + 'password_certificato' + i"
-                        [(ngModel)]="prog.password_certificato">
+                           [value]="prog.certificatePassword" [name]="course._id + 'password_certificato' + i"
+                           [(ngModel)]="prog.certificatePassword">
                 </mat-form-field>
 
                 <div class="row">
@@ -93,7 +93,7 @@
                     </div>
                 </div>
 
-                <div class="container mb-1" *ngFor="let les of prog.lezioni; index as il">
+                <div class="container mb-1" *ngFor="let les of prog.lessons; index as il">
                     <mat-expansion-panel>
                         <mat-expansion-panel-header>
                             <mat-panel-title>
@@ -104,7 +104,7 @@
                         </mat-expansion-panel-header>
                         <mat-form-field appearance="fill" class="fw mb-1">
                             <mat-label>Choose a date</mat-label>
-                            <input matInput [matDatepicker]="picker" placeholder="Choose a date..." value="{{ les.data }}"
+                            <input matInput [matDatepicker]="picker" placeholder="Choose a date..." value="{{ les.date }}"
                                 [name]="'data' + il + '_' + i" (dateChange)="adjustDate(les, $event)">
                             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                             <mat-datepicker #picker></mat-datepicker>
@@ -112,42 +112,41 @@
 
                         <mat-form-field class="fw" appearance="fill">
                             <mat-label>Start time</mat-label>
-                            <input matInput placeholder="00:00:00 (format 24h)" [value]="les.orario_inizio"
-                                [name]="'orario_inizio' + il + '_' + i" [(ngModel)]="les.orario_inizio">
+                            <input matInput placeholder="00:00:00 (format 24h)" [value]="les.startTime"
+                                [name]="'orario_inizio' + il + '_' + i" [(ngModel)]="les.startTime">
                         </mat-form-field>
 
                         <mat-form-field class="fw" appearance="fill">
                             <mat-label>End time</mat-label>
-                            <input matInput placeholder="00:00:00 (format 24h)" [value]="les.orario_fine"
-                                [name]="'orario_fine' + il + '_' + i" [(ngModel)]="les.orario_fine">
+                            <input matInput placeholder="00:00:00 (format 24h)" [value]="les.endTime"
+                                [name]="'orario_fine' + il + '_' + i" [(ngModel)]="les.endTime">
                         </mat-form-field>
 
-                        <mat-form-field *ngIf="prog.modalita != 'presenza'" class="fw" appearance="fill">
+                        <mat-form-field *ngIf="prog.modality != 'presenza'" class="fw" appearance="fill">
                             <mat-label>Online classroom link</mat-label>
-                            <input matInput placeholder="Link..." [value]="les.link_stanza_virtuale"
-                                [name]="'link_stanza_virtuale' + il + '_' + i" [(ngModel)]="les.link_stanza_virtuale">
+                            <input matInput placeholder="Link..." [value]="les.virtualRoomLink"
+                                [name]="'link_stanza_virtuale' + il + '_' + i" [(ngModel)]="les.virtualRoomLink">
                         </mat-form-field>
 
-                        <mat-form-field *ngIf="prog.modalita != 'presenza'" class="fw" appearance="fill">
+                        <mat-form-field *ngIf="prog.modality != 'presenza'" class="fw" appearance="fill">
                             <mat-label>Online classroom passcode</mat-label>
                             <input matInput type="text" placeholder="Passcode..."
-                                [value]="les.passcode_stanza_virtuale" [name]="'passcode_stanza_virtuale' + il + '_' + i"
-                                [(ngModel)]="les.passcode_stanza_virtuale">
+                                   [value]="les.virtualRoomPasscode" [name]="'passcode_stanza_virtuale' + il + '_' + i"
+                                   [(ngModel)]="les.virtualRoomPasscode">
                         </mat-form-field>
 
                         <mat-form-field class="fw" appearance="fill">
                             <mat-label>Attendance validation passcode</mat-label>
                             <input matInput type="text" placeholder="Passcode..."
-                                [value]="les.codice_verifica_presenza" [name]="'codice_verifica_presenza' + il + '_' + i"
-                                [(ngModel)]="les.codice_verifica_presenza">
+                                   [value]="les.presencePasscode" [name]="'codice_verifica_presenza' + il + '_' + i"
+                                   [(ngModel)]="les.presencePasscode">
                         </mat-form-field>
 
-                        <mat-form-field *ngIf="prog.modalita != 'online'" appearance="fill" class="fw">
+                        <mat-form-field *ngIf="prog.modality != 'online'" appearance="fill" class="fw">
                             <mat-label>Classroom</mat-label>
-                            <mat-select [(value)]="les.id_aula" [name]="'id_aula' + il + '_' + i" [(ngModel)]="les.id_aula">
-                                <mat-option *ngFor="let aula of aule" [value]="aula.id">
-                                    {{ aula.nome + ", " + aula.edificio + " " + aula.campus + " (" + aula.capienza + "
-                                    students)" }}
+                            <mat-select [(value)]="les.classroomId" [name]="'id_aula' + il + '_' + i" [(ngModel)]="les.classroomId">
+                                <mat-option *ngFor="let aula of aule" [value]="aula._id">
+                                    {{ aula.name + ", " + aula.building + " " + aula.campus + " (" + aula.capacity + "students)" }}
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>

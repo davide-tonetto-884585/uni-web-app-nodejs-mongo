@@ -1,14 +1,14 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MatLegacyDialog as MatDialog, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
-import { CourseHttpService } from '../course-http.service';
-import { AulaHttpService } from '../aula-http.service';
+import {Component, OnInit, Inject} from '@angular/core';
+import { MatDialog, MAT_DIALOG_DATA as MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {CourseHttpService} from '../services/course-http.service';
+import {AulaHttpService} from '../services/aula-http.service';
 
-import { Course, ProgCourse, Lesson, Aula } from '../models';
-import { Router } from '@angular/router';
-import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
-import { UserHttpService } from '../user-http.service';
-import { MatDateFormats, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS } from '@angular/material/core';
-import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import {Course, courseSchedule, Lesson, Classroom} from '../models';
+import {Router} from '@angular/router';
+import {MessageDialogComponent} from '../message-dialog/message-dialog.component';
+import {UserHttpService} from '../services/user-http.service';
+import {MatDateFormats, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS} from '@angular/material/core';
+import {MatDatepickerInputEvent} from '@angular/material/datepicker';
 
 export const GRI_DATE_FORMATS: MatDateFormats = {
   ...MAT_NATIVE_DATE_FORMATS,
@@ -27,12 +27,12 @@ export const GRI_DATE_FORMATS: MatDateFormats = {
   templateUrl: './course-modal.component.html',
   styleUrls: ['./course-modal.component.css'],
   providers: [
-    { provide: MAT_DATE_FORMATS, useValue: GRI_DATE_FORMATS },
+    {provide: MAT_DATE_FORMATS, useValue: GRI_DATE_FORMATS},
   ]
 })
 export class CourseModalComponent implements OnInit {
-  progs: ProgCourse[] = [];
-  aule: Aula[] = [];
+  progs: courseSchedule[] = [];
+  aule: Classroom[] = [];
   course: Course;
   isNew: boolean;
 
@@ -52,21 +52,21 @@ export class CourseModalComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.course) {
-      this.course_http.getProgrammazioniCorso(this.course.id, false).subscribe({
-        next: (prog_corso: ProgCourse[]) => {
+      this.course_http.getProgrammazioniCorso(this.course._id, false).subscribe({
+        next: (prog_corso: courseSchedule[]) => {
           this.progs = prog_corso;
 
-          this.progs.forEach((el: ProgCourse) => {
+          this.progs.forEach((el: courseSchedule) => {
             if (this.course) {
-              this.course_http.getLezioniProgCorso(this.course.id, el.id).subscribe({
+              this.course_http.getLezioniProgCorso(this.course._id, el._id).subscribe({
                 next: (lezioni: Lesson[]) => {
-                  el.lezioni = lezioni;
+                  el.lessons = lezioni;
 
-                  el.lezioni.forEach((les: Lesson) => {
-                    if (les.id_aula) {
-                      this.aula_http.getAula(les.id_aula).subscribe({
-                        next: (aula: Aula) => {
-                          les.aula = aula;
+                  el.lessons.forEach((les: Lesson) => {
+                    if (les.classroomId) {
+                      this.aula_http.getAula(les.classroomId).subscribe({
+                        next: (aula: Classroom) => {
+                          les.classroom = aula;
                         }
                       });
                     }
@@ -79,7 +79,7 @@ export class CourseModalComponent implements OnInit {
       });
 
       this.aula_http.getAule().subscribe({
-        next: (aule: Aula[]) => {
+        next: (aule: Classroom[]) => {
           this.aule = aule;
         }
       });
@@ -88,28 +88,26 @@ export class CourseModalComponent implements OnInit {
 
   addProgCorso(): void {
     this.progs.push({
-      id: -1,
-      modalita: '',
-      limite_iscrizioni: null,
-      password_certificato: '',
-      id_corso: this.course?.id ?? -1,
-      lezioni: [],
-      iscritti: undefined
+      _id: '',
+      modality: '',
+      inscriptionLimit: null,
+      certificatePassword: '',
+      lessons: [],
+      inscriptions: undefined
     });
   }
 
   addProgLesson(index: number): void {
-    this.progs[index].lezioni?.push({
-      id: -1,
-      data: '',
-      orario_inizio: '',
-      orario_fine: '',
-      link_stanza_virtuale: null,
-      passcode_stanza_virtuale: null,
-      codice_verifica_presenza: '',
-      id_aula: null,
-      aula: undefined,
-      id_programmazione_corso: this.progs[index].id
+    this.progs[index].lessons?.push({
+      _id: '',
+      date: '',
+      startTime: '',
+      endTime: '',
+      virtualRoomLink: null,
+      virtualRoomPasscode: null,
+      presencePasscode: '',
+      classroomId: null,
+      classroom: undefined,
     })
   }
 
@@ -118,54 +116,41 @@ export class CourseModalComponent implements OnInit {
 
     this.course_http.addCourse(this.course).subscribe({
       next: (d) => {
-        this.course_http.addDocentiCorso(d.id_corso, [user_id]).subscribe({
-          next: (d2) => {
-            this.progs.forEach((prog) => {
-              if (prog.id != -1) {
-                this.course_http.updateProgCorso(d.id, prog).subscribe({
-                  next: (d3) => {
-                    if (prog.lezioni)
-                      this.addLezioni(d.id, d3.id, prog.lezioni);
+        this.progs.forEach((prog) => {
+          if (prog._id != '') {
+            this.course_http.updateProgCorso(d.id, prog).subscribe({
+              next: (d3) => {
+                if (prog.lessons)
+                  this.addLezioni(d.id, d3.id, prog.lessons);
+              },
+              error: (err) => {
+                this.dialog.open(MessageDialogComponent, {
+                  data: {
+                    text: err,
+                    title: 'Failed!',
+                    error: true
                   },
-                  error: (err) => {
-                    this.dialog.open(MessageDialogComponent, {
-                      data: {
-                        text: err,
-                        title: 'Failed!',
-                        error: true
-                      },
-                    });
-                  }
-                })
-              } else {
-                this.course_http.addProgCorso(this.course.id, prog).subscribe({
-                  next: (d) => {
-                    if (prog.lezioni)
-                      this.addLezioni(this.course.id, d.id, prog.lezioni);
-                  },
-                  error: (err) => {
-                    this.dialog.open(MessageDialogComponent, {
-                      data: {
-                        text: err,
-                        title: 'Failed!',
-                        error: true
-                      },
-                    });
-                  }
-                })
+                });
               }
             })
-          },
-          error: (err) => {
-            this.dialog.open(MessageDialogComponent, {
-              data: {
-                text: err,
-                title: 'Failed!',
-                error: true
+          } else {
+            this.course_http.addProgCorso(this.course._id, prog).subscribe({
+              next: (d) => {
+                if (prog.lessons)
+                  this.addLezioni(this.course._id, d.id, prog.lessons);
               },
-            });
+              error: (err) => {
+                this.dialog.open(MessageDialogComponent, {
+                  data: {
+                    text: err,
+                    title: 'Failed!',
+                    error: true
+                  },
+                });
+              }
+            })
           }
-        })
+        });
       },
       error: (err) => {
         this.dialog.open(MessageDialogComponent, {
@@ -183,13 +168,13 @@ export class CourseModalComponent implements OnInit {
     this.course_http.updateCourse(this.course).subscribe({
       next: (d) => {
         if (this.progs.length === 0) this.dialog.closeAll();
-        
+
         this.progs.forEach((prog) => {
-          if (prog.id != -1) {
-            this.course_http.updateProgCorso(this.course.id, prog).subscribe({
+          if (prog._id != '') {
+            this.course_http.updateProgCorso(this.course._id, prog).subscribe({
               next: (d) => {
-                if (prog.lezioni)
-                  this.addLezioni(this.course.id, prog.id, prog.lezioni);
+                if (prog.lessons)
+                  this.addLezioni(this.course._id, prog._id, prog.lessons);
                 else
                   this.dialog.closeAll()
               },
@@ -204,10 +189,10 @@ export class CourseModalComponent implements OnInit {
               }
             })
           } else {
-            this.course_http.addProgCorso(this.course.id, prog).subscribe({
+            this.course_http.addProgCorso(this.course._id, prog).subscribe({
               next: (d) => {
-                if (prog.lezioni)
-                  this.addLezioni(this.course.id, d.id, prog.lezioni);
+                if (prog.lessons)
+                  this.addLezioni(this.course._id, d.id, prog.lessons);
                 else
                   this.dialog.closeAll()
               },
@@ -236,9 +221,9 @@ export class CourseModalComponent implements OnInit {
     })
   }
 
-  addLezioni(id_corso: number, id_prog: number, lezioni: Lesson[]): void {
+  addLezioni(id_corso: string, id_prog: string, lezioni: Lesson[]): void {
     lezioni.forEach((l) => {
-      if (l.id == -1) {
+      if (l._id == '') {
         this.course_http.addLezioneProg(id_corso, id_prog, l).subscribe({
           next: (d) => {
             this.dialog.closeAll()
@@ -276,7 +261,7 @@ export class CourseModalComponent implements OnInit {
     const file: File = event.target.files[0];
 
     if (file) {
-      this.course.immagine_copertina = file;
+      this.course.image = file;
     }
   }
 
@@ -284,7 +269,7 @@ export class CourseModalComponent implements OnInit {
     const file: File = event.target.files[0];
 
     if (file) {
-      this.course.file_certificato = file;
+      this.course.certificateFile = file;
     }
   }
 
@@ -307,6 +292,6 @@ export class CourseModalComponent implements OnInit {
 
   adjustDate(lezione: Lesson, event: MatDatepickerInputEvent<Date>): void {
     if (event.value)
-      lezione.data = this.formatDate(event.value);
+      lezione.date = this.formatDate(event.value);
   }
 }

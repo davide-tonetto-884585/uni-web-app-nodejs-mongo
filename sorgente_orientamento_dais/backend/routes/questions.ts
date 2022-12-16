@@ -1,36 +1,32 @@
 import * as Course from "../models/Course";
-import {authorize, Role} from "../index";
+import {authorize, Role, upload} from "../index";
 
 const express = require('express');
 const router = express.Router();
 
 router.get('/', async (req, res, next) => {
-    let filter = Object();
-    if (req.body.text) filter.text = {$regex: '.*' + req.body.text + '.*'};
-    if (req.body.isClosed) filter.isClosed = req.body.isClosed;
-
-    let slice = Object();
-    if (req.body.skip && req.body.limit) slice.$slice = [req.body.skip, req.body.skip + req.body.limit];
-
-    let course = await Course.getModel().findOne({
+    let query = Course.getModel().findOne({
         _id: res.locals.courseId,
-    }, {
-        questions: {
-            $elemMatch: {
-                ...filter
-            },
-            ...slice
-        }
-    });
+    }).populate('questions.userId', 'name surname');
 
+    let course = await query;
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."});
 
-    if (req.body.orderBy === 'like')
-        course.questions.sort((a, b) => b.likes.length - a.likes.length);
-    else
-        course.questions.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    let questions: any[] = course.questions;
+    if (req.query.text)
+        questions = questions.filter((question) => question.text.includes(req.query.text));
+    if (req.query.isClosed)
+        questions = questions.filter((question) => question.isClosed == (req.query.isClosed === "true" ? 1 : 0));
 
-    return res.status(200).json(course.questions);
+    const count = questions.length;
+    if (req.query.orderBy === "like")
+        questions = questions.sort((a, b) => b.likes.length - a.likes.length);
+    else
+        questions = questions.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+
+    questions = questions.slice(req.query.skip, req.query.skip + req.query.limit);
+
+    return res.status(200).json({questions: questions, count: count});
 })
 
 router.get('/:id/answers', async (req, res, next) => {
@@ -42,7 +38,7 @@ router.get('/:id/answers', async (req, res, next) => {
                 _id: req.params.id
             }
         }
-    });
+    }).populate('questions.answers.userId', 'name surname');
 
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."});
 
@@ -52,7 +48,7 @@ router.get('/:id/answers', async (req, res, next) => {
     return res.status(200).json(question.answers.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
 });
 
-router.post('/', authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.post('/', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     const text = req.body.text;
     if (!text) return next({statusCode: 400, error: true, errormessage: "Text is required."});
 
@@ -61,8 +57,12 @@ router.post('/', authorize([Role.Admin, Role.Teacher, Role.Student]), async (req
     });
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."});
 
-    if (req.auth.roles.includes(Role.Teacher) && course.teacherId !== req.auth.id)
-        return next({statusCode: 401, error: true, errormessage: "You are not authorized to post a question in a course that does not belong to you."});
+    if (req.auth.roles.includes(Role.Teacher) && course.teacherId != req.auth.id)
+        return next({
+            statusCode: 401,
+            error: true,
+            errormessage: "You are not authorized to post a question in a course that does not belong to you."
+        });
 
     course.addQuestion(req.auth.id, text);
     course.save().then(() => {
@@ -72,7 +72,43 @@ router.post('/', authorize([Role.Admin, Role.Teacher, Role.Student]), async (req
     });
 });
 
-router.post('/:id/answers', authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.put('/:id', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+    let course = await Course.getModel().findOne({
+        _id: res.locals.courseId,
+    }, {
+        questions: {
+            $elemMatch: {
+                _id: req.params.id
+            }
+        }
+    });
+    if (!course || !course.questions[0]) return next({statusCode: 409, error: true, errormessage: "Course not found."});
+
+    if (req.auth.roles.includes(Role.Teacher) && course.questions[0].userId != req.auth.id)
+        return next({
+            statusCode: 401,
+            error: true,
+            errormessage: "You are not authorized to edit a question that does not belong to you."
+        });
+
+    if (req.auth.roles.includes(Role.Student) && course.questions[0].userId != req.auth.id)
+        return next({
+            statusCode: 401,
+            error: true,
+            errormessage: "You are not authorized to edit a question that does not belong to you."
+        });
+
+    if (req.body.isClosed) course.questions[0].isClosed = req.body.isClosed;
+    if (req.body.text) course.questions[0].text = req.body.text;
+
+    course.save().then(() => {
+        return res.status(200).json({error: false, errormessage: ""});
+    }).catch((err) => {
+        return next({statusCode: 500, error: true, errormessage: err});
+    });
+});
+
+router.post('/:id/answers', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     const text = req.body.text;
     if (!text) return next({statusCode: 400, error: true, errormessage: "Text is required."});
 
@@ -85,10 +121,18 @@ router.post('/:id/answers', authorize([Role.Admin, Role.Teacher, Role.Student]),
             }
         }
     });
-    if (!course || !course.questions[0]) return next({statusCode: 409, error: true, errormessage: "Course not found."});
+    if (!course || !course.questions[0]) return next({
+        statusCode: 409,
+        error: true,
+        errormessage: "Course not found."
+    });
 
-    if (req.auth.roles.includes(Role.Student) && course.questions[0].userId !== req.auth.id)
-        return next({statusCode: 401, error: true, errormessage: "You are not authorized to post an answer to a question that does not belong to you."});
+    if (req.auth.roles.includes(Role.Student) && course.questions[0].userId != req.auth.id)
+        return next({
+            statusCode: 401,
+            error: true,
+            errormessage: "You are not authorized to post an answer to a question that does not belong to you."
+        });
 
     if (course.questions[0].isClosed)
         return next({statusCode: 409, error: true, errormessage: "Question is closed."});
@@ -120,7 +164,7 @@ router.get('/:id/likes', async (req, res, next) => {
     return res.status(200).json(question.likes);
 });
 
-router.post('/:id/likes', authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.post('/:id/likes', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
     }, {
@@ -130,7 +174,11 @@ router.post('/:id/likes', authorize([Role.Admin, Role.Teacher, Role.Student]), a
             }
         }
     });
-    if (!course || !course.questions[0]) return next({statusCode: 409, error: true, errormessage: "Course not found."});
+    if (!course || !course.questions[0]) return next({
+        statusCode: 409,
+        error: true,
+        errormessage: "Course not found."
+    });
 
     if (!course.questions[0].addLike(req.auth.id))
         return next({statusCode: 409, error: true, errormessage: "You already liked this question."});
@@ -152,7 +200,11 @@ router.delete('/:id/likes', authorize([Role.Admin, Role.Teacher, Role.Student]),
             }
         }
     });
-    if (!course || !course.questions[0]) return next({statusCode: 409, error: true, errormessage: "Course not found."});
+    if (!course || !course.questions[0]) return next({
+        statusCode: 409,
+        error: true,
+        errormessage: "Course not found."
+    });
 
     if (!course.questions[0].removeLike(req.auth.id))
         return next({statusCode: 409, error: true, errormessage: "You did not like this question."});

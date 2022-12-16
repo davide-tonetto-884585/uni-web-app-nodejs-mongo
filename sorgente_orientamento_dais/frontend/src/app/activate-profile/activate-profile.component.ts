@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { UserHttpService } from '../user-http.service';
+import { UserHttpService } from '../services/user-http.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BACKEND_URL } from '../globals';
 
@@ -36,7 +36,7 @@ export class ActivateProfileComponent implements OnInit {
 
   complete_registration(): void {
     if (this.schools.length == 1) {
-      this.user_data['id_scuola'] = this.schools[0].id;
+      this.user_data['schoolId'] = this.schools[0]._id;
       this.user_http.completeRegistration(this.user_id, this.activation_token, this.user_data).subscribe({
         next: (d) => {
           this.router.navigate(['/login']);
@@ -64,7 +64,7 @@ export class ActivateProfileComponent implements OnInit {
   }
 
   filter_schools(): void {
-    this.http.get(`${BACKEND_URL}/scuole?name=${this.school_input.toUpperCase()}&limit=300`).subscribe({
+    this.http.get(`${BACKEND_URL}/schools?name=${this.school_input.toUpperCase()}&limit=300`).subscribe({
       next: (d) => {
         this.schools = d;
       }
@@ -75,7 +75,7 @@ export class ActivateProfileComponent implements OnInit {
     const file: File = event.target.files[0];
 
     if (file) {
-      this.user_data.immagine_profilo = file;
+      this.user_data.profilePicture = file;
     }
   }
 }

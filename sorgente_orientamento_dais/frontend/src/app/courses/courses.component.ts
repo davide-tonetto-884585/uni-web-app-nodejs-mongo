@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
-import { CourseHttpService } from '../course-http.service';
+import { CourseHttpService } from '../services/course-http.service';
 import { Router } from '@angular/router';
 import { Course } from '../models';
-import { LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-courses',
@@ -15,7 +15,7 @@ export class CoursesComponent implements OnInit {
   skip: number = 0;
   courses: Course[] = [];
 
-  count: number = 0;  
+  count: number = 0;
 
   scheduled: string | null = null;
   language: string | null = null;
@@ -41,8 +41,8 @@ export class CoursesComponent implements OnInit {
     if (this.scheduled == '1') scheduled = true;
 
     this.course_http.getCourses(this.limit, this.skip, this.search_title, this.language, scheduled).subscribe({
-      next: (res: any) => {
-        this.courses = res.corsi;
+      next: (res) => {
+        this.courses = res.courses;
         this.count = res.count;
       }
     })

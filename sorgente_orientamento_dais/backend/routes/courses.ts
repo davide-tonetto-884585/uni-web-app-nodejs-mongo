@@ -6,7 +6,7 @@ const router = express.Router();
 import * as Course from '../models/Course';
 import * as User from '../models/User';
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
     const title = req.body.title;
     const skip = req.body.skip;
     const limit = req.body.limit;
@@ -25,13 +25,16 @@ router.get('/', (req, res, next) => {
     }
 
     let query = Course.getModel().find(filter);
+    const count = await Course.getModel().countDocuments(query);
+
     if (skip) query.skip(skip);
     if (limit) query.limit(limit);
 
     query.then((courses) => {
-        // if (popular) courses = courses.sort()
+        // TODO: add order by
+        // if (popular) courses = courses.sort((a, b) => {});
 
-        return res.status(200).json(courses);
+        return res.status(200).json({courses: courses, count: count});
     }).catch((err) => {
         return next({statusCode: 500, error: true, errormessage: "Error in finding courses: " + err});
     });
@@ -54,9 +57,7 @@ router.post('/', authorize([Role.Admin, Role.Teacher]),
         name: 'image', maxCount: 1
     }, {
         name: 'certificateFile', maxCount: 1
-    }]),
-    async (req, res, next) => {
-
+    }]), async (req, res, next) => {
         const title = req.body.title;
         if (!title) return next({statusCode: 404, error: true, errormessage: "Missing fields."});
 
@@ -105,7 +106,7 @@ router.put('/:id', authorize([Role.Admin, Role.Teacher]),
         if (!course)
             return next({statusCode: 409, error: true, errormessage: "Course not found."});
 
-        if (req.auth.roles.includes(Role.Teacher) && req.auth.roles.length === 1 && course.teacherId !== req.auth.id)
+        if (req.auth.roles.includes(Role.Teacher) && req.auth.roles.length === 1 && course.teacherId != req.auth.id)
             return next({
                 statusCode: 401,
                 error: true,

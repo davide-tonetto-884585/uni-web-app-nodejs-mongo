@@ -108,8 +108,12 @@ const app = express();
 
 app.use(cors());
 // enable bodyparser
-app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}))
+
+// static folder definition
+app.use('/uploads', express.static('uploads'));
+
 // custom debugging middleware that run for every request
 app.use((req, res, next) => {
     console.log("------------------------------------------------".inverse)

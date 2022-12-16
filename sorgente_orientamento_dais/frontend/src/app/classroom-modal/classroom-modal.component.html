@@ -9,8 +9,8 @@
 <div mat-dialog-content>
     <ul>
         <li *ngFor="let aula of aule">
-            {{ aula.nome + ", edifice " + aula.edificio + " campus " +
-            aula.campus + " - " + aula.capienza + "
+            {{ aula.name + ", edifice " + aula.building + " campus " +
+            aula.campus + " - " + aula.capacity + "
             students" }}
         </li>
     </ul>
@@ -27,14 +27,14 @@
             <mat-label>Name</mat-label>
             <input matInput type="text" placeholder="Classroom name..."
                 [name]="'nome_' + i"
-                [(ngModel)]="aula.nome">
+                [(ngModel)]="aula.name">
         </mat-form-field>
 
         <mat-form-field class="w-100" appearance="fill">
             <mat-label>Edifice</mat-label>
             <input matInput type="text" placeholder="Edifice name..."
                 [name]="'edificio_' + i"
-                [(ngModel)]="aula.edificio">
+                [(ngModel)]="aula.building">
         </mat-form-field>
 
         <mat-form-field class="w-100" appearance="fill">
@@ -48,7 +48,7 @@
             <mat-label>Capacity</mat-label>
             <input matInput type="number" placeholder="Capacity..."
                 [name]="'capienza_' + i"
-                [(ngModel)]="aula.capienza">
+                [(ngModel)]="aula.capacity">
         </mat-form-field>
     </mat-expansion-panel>
 

@@ -1,18 +1,18 @@
 <mat-expansion-panel class="mt-2" (opened)="loadReplies()">
     <mat-expansion-panel-header>
         <mat-panel-title>
-            {{ question?.nome + ' ' + question?.cognome }}
+            {{ question?.userId?.name + ' ' + question?.userId?.surname }}
         </mat-panel-title>
         <mat-panel-description>
-            {{ question?.timestamp | date:'EEEE, d MMMM y' }} - {{ question?.total_likes + ' likes' }} {{ question?.chiusa ? '- closed' : '' }}
+            {{ question?.timestamp | date:'EEEE, d MMMM y' }} - {{ question?.likes?.length + ' likes' }} {{ question?.isClosed ? '- closed' : '' }}
         </mat-panel-description>
     </mat-expansion-panel-header>
     <p class="mb-1"><b>Question:</b></p>
-    <p>{{ question?.testo }}</p>
+    <p>{{ question?.text }}</p>
     <p *ngIf="replies.length > 0" class="mb-1"><b>Answers:</b></p>
-    <p *ngFor="let reply of replies">{{ reply.nome + ' ' + reply.cognome + ': ' + reply.testo }}</p>
+    <p *ngFor="let reply of replies">{{ reply.userId.name + ' ' + reply.userId.name + ': ' + reply.text }}</p>
     <div class="text-center">
-        <button *ngIf="canAnswer() && !question?.chiusa" (click)="chiudiDomanda()" type="button" class="btn btn-warning m-1">
+        <button *ngIf="canAnswer() && !question?.isClosed" (click)="chiudiDomanda()" type="button" class="btn btn-warning m-1">
             Close question
         </button>
         <button *ngIf="isLogged() && !alreadyLiked()" (click)="addLikeDomanda()" type="button" class="btn btn-danger m-1">

@@ -1,4 +1,5 @@
 import * as mongoose from "mongoose";
+import {Classroom} from "./Classroom";
 
 const lessonSchema = new mongoose.Schema({
     date: {
@@ -31,7 +32,7 @@ const lessonSchema = new mongoose.Schema({
         ref: 'Classroom',
         required: false
     },
-    attendance: [{
+    attendances: [{
         studentId: {
             type: mongoose.SchemaTypes.ObjectId,
             ref: 'User',
@@ -43,7 +44,7 @@ const lessonSchema = new mongoose.Schema({
 lessonSchema.methods.addAttendance = function(studentId, presencePasscode): boolean {
     if (presencePasscode !== this.presencePasscode) return false;
 
-    this.attendance.push({studentId: studentId});
+    this.attendances.push({studentId: studentId});
     return true;
 }
 

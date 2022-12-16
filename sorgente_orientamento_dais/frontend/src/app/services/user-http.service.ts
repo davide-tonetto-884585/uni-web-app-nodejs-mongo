@@ -5,8 +5,8 @@ import { Observable, throwError } from 'rxjs';
 import jwt_decode from 'jwt-decode';
 import { Router } from '@angular/router';
 
-import { User, UserData } from './models';
-import { BACKEND_URL, FRONTEND_URL } from './globals';
+import { User, UserData } from '../models';
+import { BACKEND_URL, FRONTEND_URL } from '../globals';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +33,7 @@ export class UserHttpService {
     return {
       headers: new HttpHeaders({
         'authorization': 'Bearer ' + this.getToken(),
-        'cache-control': 'no-cache'
+        'cache-control': 'no-cache',
       }),
       params: new HttpParams({ fromObject: params })
     };
@@ -92,7 +92,7 @@ export class UserHttpService {
     form_data.append('frontend_activation_link', `${FRONTEND_URL}/activate`);
 
     // invio richiesta la backend
-    return this.http.post(BACKEND_URL + '/utenti/studenti', form_data).pipe(
+    return this.http.post(BACKEND_URL + '/users/students', form_data).pipe(
       tap((data: any) => {
         console.log(JSON.stringify(data));
       })
@@ -108,7 +108,7 @@ export class UserHttpService {
 
     form_data.append('frontend_activation_link', `${FRONTEND_URL}/activate`);
 
-    return this.http.post(BACKEND_URL + '/utenti/docenti', form_data, this.createOptions()).pipe(
+    return this.http.post(BACKEND_URL + '/users/teachers', form_data, this.createOptions()).pipe(
       tap((data: any) => {
         console.log(JSON.stringify(data));
       })
@@ -116,15 +116,15 @@ export class UserHttpService {
   }
 
   // completamento registrazione nuovo studente (conferma mail)
-  completeRegistration(id: number, token: string, informations: any): Observable<any> {
+  completeRegistration(id: string, token: string, informations: any): Observable<any> {
     const form_data = new FormData();
     Object.keys(informations).forEach((key) => {
       form_data.append(key, informations[key]);
     });
 
-    form_data.append('token_verifica', token);
+    form_data.append('verifyToken', token);
 
-    return this.http.post(BACKEND_URL + '/utenti/studenti/' + id, form_data).pipe(
+    return this.http.post(BACKEND_URL + '/users/students/' + id, form_data).pipe(
       tap((data: any) => {
         console.log(JSON.stringify(data));
       })
@@ -132,15 +132,15 @@ export class UserHttpService {
   }
 
   // completamento registrazione nuovo docente (conferma mail)
-  completeTeacherRegistration(id: number, token: string, informations: any): Observable<any> {
+  completeTeacherRegistration(id: string, token: string, informations: any): Observable<any> {
     const form_data = new FormData();
     Object.keys(informations).forEach((key) => {
       form_data.append(key, informations[key]);
     });
 
-    form_data.append('token_verifica', token);
+    form_data.append('verifyToken', token);
 
-    return this.http.post(BACKEND_URL + '/utenti/docenti/' + id, form_data).pipe(
+    return this.http.post(BACKEND_URL + '/users/teachers/' + id, form_data).pipe(
       tap((data: any) => {
         console.log(JSON.stringify(data));
       })
@@ -155,7 +155,7 @@ export class UserHttpService {
   // ritorna true se l'utente è un admin
   isAdmin(): boolean {
     if (this.user_data) {
-      return this.user_data.roles.includes('amministratore');
+      return this.user_data.roles.includes('admin');
     }
 
     return false;
@@ -164,7 +164,7 @@ export class UserHttpService {
   // ritorna true se l'utente è uno studente
   isStudent(): boolean {
     if (this.user_data) {
-      return this.user_data.roles.includes('studente');
+      return this.user_data.roles.includes('student');
     }
 
     return false;
@@ -173,7 +173,7 @@ export class UserHttpService {
   // ritorna true se l'utente è un docente
   isTeacher(): boolean {
     if (this.user_data) {
-      return this.user_data.roles.includes('docente');
+      return this.user_data.roles.includes('teacher');
     }
 
     return false;
@@ -181,11 +181,11 @@ export class UserHttpService {
 
   // ritorna il nome dell'utente loggato se presente
   getName(): string | boolean {
-    return this.user_data?.nome ?? false;
+    return this.user_data?.name ?? false;
   }
 
   // ritorna l'ID dell'utente loggato se presente
-  getId(): number | undefined {
+  getId(): string | undefined {
     return this.user_data?.id;
   }
 }

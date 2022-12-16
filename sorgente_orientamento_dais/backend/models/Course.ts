@@ -30,7 +30,7 @@ export interface Course extends mongoose.Document {
             virtualRoomPasscode: string,
             presencePasscode: string,
             classroomId: mongoose.Schema.Types.ObjectId,
-            attendance: [{
+            attendances: [{
                 studentId: mongoose.Schema.Types.ObjectId
             }],
             addAttendance: (studentId, presencePasscode) => boolean

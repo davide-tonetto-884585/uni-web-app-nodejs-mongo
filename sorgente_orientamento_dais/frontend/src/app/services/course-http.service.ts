@@ -59,10 +59,13 @@ export class CourseHttpService {
   }
 
   // richiede le programmazioni di un corso con possibile filtro in_corso che permette di reperire solo i courses con schedulazioni attive
-  getProgrammazioniCorso(id_corso: string, in_corso: boolean | null = null): Observable<courseSchedule[]> {
+  getProgrammazioniCorso(id_corso: string, in_corso: boolean | null = null, currentOrNull: boolean | null = null): Observable<courseSchedule[]> {
     return this.http.get<courseSchedule[]>(
       `${BACKEND_URL}/courses/${id_corso}/courseSchedules`,
-      this.createOptions(Object.fromEntries(Object.entries({current: in_corso}).filter(([_, v]) => v != null)))
+      this.createOptions(Object.fromEntries(Object.entries({
+        current: in_corso,
+        currentOrNull: currentOrNull
+      }).filter(([_, v]) => v != null)))
     ).pipe(catchError(this.handleError));
   }
 

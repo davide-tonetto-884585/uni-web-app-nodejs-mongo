@@ -1,6 +1,6 @@
 import {authorize, Role} from "../index";
 import * as Course from '../models/Course';
-import * as User from "../models/User";
+import * as School from '../models/School';
 
 const express = require('express');
 const router = express.Router();
@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
-    }).populate("schedules.inscriptions.studentId").populate("schedules.inscriptions.studentId.studentData.schoolId");
+    }).populate("schedules.inscriptions.studentId");
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
 
     if (req.auth.roles.includes(Role.Teacher) && course.teacherId != req.auth.id)
@@ -25,7 +25,7 @@ router.get('/', authorize([Role.Admin, Role.Teacher]), async (req, res, next) =>
     let inscriptionCount = 0;
     let lessonsCount = 0;
     let attendanceCount = 0;
-    let studentDistribution: { name: string, value: number }[] = [];
+    let studentDistribution: { schoolId: string, name: string, value: number }[] = [];
     let studentProvenience: { name: string, value: number }[] = [];
     let inPresenceInscriptionCount = 0;
     let onlineInscriptionCount = 0;
@@ -45,10 +45,16 @@ router.get('/', authorize([Role.Admin, Role.Teacher]), async (req, res, next) =>
         inscriptionCount += schedule.inscriptions.length;
         lessonsCount += schedule.lessons.length;
         attendanceCount += schedule.lessons.reduce((acc: any, lesson: any) => acc + lesson.attendances.length, 0);
-        schedule.inscriptions.forEach((inscription: any) => {
-            let school = studentDistribution.find((school: any) => school.name === inscription.studentId.studentData.schoolId.PROVINCIA);
+        schedule.inscriptions.forEach(async (inscription: any) => {
+            let school = studentDistribution.find((school) => school.schoolId === inscription.studentId.studentData.schoolId);
             if (school) school.value++;
-            else studentDistribution.push({name: inscription.studentId.studentData.schoolId.PROVINCIA, value: 1});
+            else {
+                studentDistribution.push({
+                    schoolId: inscription.studentId.studentData.schoolId,
+                    name: '',
+                    value: 1
+                });
+            }
         });
         schedule.inscriptions.forEach((inscription: any) => {
             let student = studentProvenience.find((student: any) => student.name === inscription.studentId.studentData.fieldOfStudy);
@@ -71,6 +77,12 @@ router.get('/', authorize([Role.Admin, Role.Teacher]), async (req, res, next) =>
             attendanceCount: schedule.lessons.reduce((acc: any, lesson: any) => acc + lesson.attendances.length, 0),
         });
     })
+
+    for (let school of studentDistribution) {
+        const s = await School.getModel().findOne({_id: school.schoolId});
+        if (!s) return next({statusCode: 409, error: true, errormessage: "School not found."})
+        school.name = s.PROVINCIA;
+    }
 
     return res.status(200).json({
         error: false, errormessage: "",

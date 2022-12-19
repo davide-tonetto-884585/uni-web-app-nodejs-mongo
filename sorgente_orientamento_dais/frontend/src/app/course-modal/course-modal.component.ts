@@ -51,7 +51,7 @@ export class CourseModalComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.course) {
-      this.course_http.getProgrammazioniCorso(this.course._id, false).subscribe({
+      this.course_http.getProgrammazioniCorso(this.course._id, null, true).subscribe({
         next: (prog_corso: courseSchedule[]) => {
           this.progs = prog_corso;
 

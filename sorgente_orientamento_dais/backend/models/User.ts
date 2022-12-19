@@ -109,7 +109,7 @@ const userSchema = new mongoose.Schema({
             }],
             schoolId: {
                 type: mongoose.SchemaTypes.ObjectId,
-                ref: 'schools',
+                ref: 'School',
                 required: true
             }
         },

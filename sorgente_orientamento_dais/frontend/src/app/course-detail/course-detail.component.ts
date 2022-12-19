@@ -99,8 +99,8 @@ export class CourseDetailComponent implements OnInit {
     }
   }
 
-  loadProgs(in_corso: boolean | null): void {
-    this.course_http.getProgrammazioniCorso(this.course_id, in_corso).subscribe({
+  loadProgs(in_corso: boolean | null, currentOrNull: boolean | null = null): void {
+    this.course_http.getProgrammazioniCorso(this.course_id, in_corso, currentOrNull).subscribe({
       next: (prog_corso: courseSchedule[]) => {
         this.prog_corso = prog_corso;
       }

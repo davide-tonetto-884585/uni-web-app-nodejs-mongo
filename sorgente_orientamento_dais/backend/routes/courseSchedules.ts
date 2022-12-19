@@ -71,7 +71,6 @@ router.get('/', async (req, res, next) => {
 
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
-
     });
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
 
@@ -80,7 +79,16 @@ router.get('/', async (req, res, next) => {
         ...filter
     });
 
-    return res.status(200).json(course?.schedules ?? []);
+    if (course && req.query.currentOrNull) {
+        let schedules = Array();
+        course.schedules.forEach((schedule) => {
+            if (schedule.lessons.length === 0 || schedule.lessons.find((lesson) => lesson.date.getTime() > Date.now()) !== undefined)
+                schedules.push(schedule)
+        });
+
+        return res.status(200).json(schedules);
+    } else
+        return res.status(200).json(course?.schedules ?? []);
 });
 
 router.get('/:scheduleId', async (req, res, next) => {

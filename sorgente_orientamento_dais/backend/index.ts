@@ -4,30 +4,32 @@ import cors = require('cors');
 import http = require('http');
 
 import colors = require('colors');
-
+import passportHTTP = require('passport-http');
 import {expressjwt as jwt} from "express-jwt";
 import passport from "passport";
-import passportHTTP = require('passport-http');
 import * as mongoose from "mongoose";
+import * as User from './models/User';
 
 const multer = require("multer");
-
-import * as User from './models/User';
 
 // enable colors for console
 colors.enabled = true;
 
 // enable multer for file uploads
-const storage = multer.diskStorage({
+const imageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './uploads')
+        if (file.fieldname === 'certificateFile') {
+            cb(null, './certificates')
+        } else {
+            cb(null, './uploads')
+        }
     },
     filename: function (req, file, cb) {
         cb(null, file.originalname)
     }
-})
+});
 
-export let upload = multer({storage: storage})
+export let imageUpload = multer({storage: imageStorage})
 
 // check JWT_SECRET
 const dotenv = require('dotenv').config();
@@ -169,7 +171,7 @@ app.use("/courses/:id/courseSchedules/:scheduleId/lessons/:lessonId/attendances"
     res.locals.lessonId = req.params.lessonId;
     next();
 }, attendancesRoutes);
-app.use("courses/:id/statistics", (req, res, next) => {
+app.use("/courses/:id/statistics", (req, res, next) => {
     res.locals.courseId = req.params.id;
     next();
 }, statisticsRoutes);

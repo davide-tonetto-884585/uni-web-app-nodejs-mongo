@@ -1,21 +1,20 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { tap, catchError } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
-
-import { Course, Lesson, courseSchedule, Classroom } from '../models';
-import { BACKEND_URL, FRONTEND_URL } from '../globals';
-import { UserHttpService } from './user-http.service';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
+import {catchError} from 'rxjs/operators';
+import {Observable, throwError} from 'rxjs';
+import {BACKEND_URL} from '../globals';
+import {UserHttpService} from './user-http.service';
+import {Statistics} from "../models";
 
 @Injectable({
   providedIn: 'root'
 })
 export class StatisticsHttpService {
-
   constructor(
     private http: HttpClient,
     private user_http: UserHttpService,
-  ) { }
+  ) {
+  }
 
   // crea le informazioni di base per le richieste http
   private createOptions(params = {}) {
@@ -24,7 +23,7 @@ export class StatisticsHttpService {
         'authorization': 'Bearer ' + this.user_http.getToken(),
         'cache-control': 'no-cache',
       }),
-      params: new HttpParams({ fromObject: params })
+      params: new HttpParams({fromObject: params})
     };
   }
 
@@ -43,9 +42,9 @@ export class StatisticsHttpService {
   }
 
   // ritorna un Observable con le statistiche del corso indicato
-  getCourseStatistics(id_corso: string): Observable<any> {
-    return this.http.get<any>(
-      `${BACKEND_URL}/corsi/${id_corso}/statistiche`,
+  getCourseStatistics(id_corso: string): Observable<Statistics> {
+    return this.http.get<Statistics>(
+      `${BACKEND_URL}/courses/${id_corso}/statistics`,
       this.createOptions()
     ).pipe(catchError(this.handleError));
   }

@@ -1,103 +1,103 @@
-<div id="form-activation-div" class="container">
+<div class="container" id="form-activation-div">
 
-    <form *ngIf="category == 'studente'" class="form-signin text-center">
+  <form *ngIf="category == 'studente'" class="form-signin text-center">
 
-        <div class="text-center">
-            <i class="fas fa-envelope loginlogo"></i>
-            <h1 class="h3 mb-3 font-weight-normal">Account activation</h1>
-        </div>
+    <div class="text-center">
+      <i class="fas fa-envelope loginlogo"></i>
+      <h1 class="h3 mb-3 font-weight-normal">Account activation</h1>
+    </div>
 
-        <div class="mb-3 text-start">
-            <label for="_id_scuola">School</label>
+    <div class="mb-3 text-start">
+      <label for="_id_scuola">School</label>
 
-            <input list="datalistOptions" type="text" #id_scuola="ngModel" required name="denominazione_scuola"
-                [(ngModel)]="school_input" class="form-control" id="_id_scuola" placeholder="Select school name"
-                (ngModelChange)="filter_schools()" autocomplete="false">
+      <input #id_scuola="ngModel" (ngModelChange)="filter_schools()" [(ngModel)]="school_input" autocomplete="false" class="form-control"
+             id="_id_scuola" list="datalistOptions" name="denominazione_scuola" placeholder="Select school name"
+             required type="text">
 
-            <datalist id="datalistOptions" name="school_id">
-                <option *ngFor="let school of schools" (value)="school._id">
-                    {{ school.DENOMINAZIONESCUOLA }}</option>
-            </datalist>
-        </div>
+      <datalist id="datalistOptions" name="school_id">
+        <option [value]="school._id" *ngFor="let school of schools">
+          {{ school.DENOMINAZIONESCUOLA }}</option>
+      </datalist>
+    </div>
 
-        <div [hidden]="id_scuola.valid || id_scuola.pristine" class="alert alert-danger">
-            School is required
-        </div>
+    <div [hidden]="id_scuola.valid || id_scuola.pristine" class="alert alert-danger">
+      School is required
+    </div>
 
-        <div class="mb-3 text-start">
-            <label for="indirizzo_di_studio">Field of study</label>
+    <div class="mb-3 text-start">
+      <label for="indirizzo_di_studio">Field of study</label>
 
-            <select class="form-select" #indirizzo_di_studio="ngModel" required name="indirizzo_di_studio"
-                [(ngModel)]="user_data['fieldOfStudy']" id="indirizzo_di_studio"
-                placeholder="Select field of study">
-                <option value="Art school">Art school</option>
-                <option value="IT technical institute">IT technical institute</option>
-                <option value="Scientific lyceum">Scientific lyceum</option>
-            </select>
-        </div>
+      <select #indirizzo_di_studio="ngModel" [(ngModel)]="user_data['fieldOfStudy']" class="form-select" id="indirizzo_di_studio"
+              name="indirizzo_di_studio" placeholder="Select field of study"
+              required>
+        <option value="Art school">Art school</option>
+        <option value="IT technical institute">IT technical institute</option>
+        <option value="Scientific lyceum">Scientific lyceum</option>
+      </select>
+    </div>
 
-        <div [hidden]="indirizzo_di_studio.valid || indirizzo_di_studio.pristine" class="alert alert-danger">
-            Field of study is required
-        </div>
+    <div [hidden]="indirizzo_di_studio.valid || indirizzo_di_studio.pristine" class="alert alert-danger">
+      Field of study is required
+    </div>
 
-        <div *ngIf="errormessage" class="alert alert-danger" role="alert">
-            Activation error: {{errormessage}}
-        </div>
+    <div *ngIf="errormessage" class="alert alert-danger" role="alert">
+      Activation error: {{errormessage}}
+    </div>
 
-        <button type="button" class="btn btn-lg btn-primary btn-block"
-            [disabled]="!id_scuola.valid || !indirizzo_di_studio.valid" (click)="complete_registration();">
-            Complete registration
-        </button>
+    <button (click)="complete_registration();" [disabled]="!id_scuola.valid || !indirizzo_di_studio.valid"
+            class="btn btn-lg btn-primary btn-block" type="button">
+      Complete registration
+    </button>
 
-        <p class="mt-5 mb-3 text-muted">&copy; 2022</p>
-    </form>
+    <p class="mt-5 mb-3 text-muted">&copy; 2022</p>
+  </form>
 
-    <form *ngIf="category == 'docente'" class="form-signin text-center">
+  <form *ngIf="category == 'docente'" class="form-signin text-center">
 
-        <div class="text-center">
-            <i class="fas fa-envelope loginlogo"></i>
-            <h1 class="h3 mb-3 font-weight-normal">Account activation</h1>
-        </div>
+    <div class="text-center">
+      <i class="fas fa-envelope loginlogo"></i>
+      <h1 class="h3 mb-3 font-weight-normal">Account activation</h1>
+    </div>
 
-        <div class="mb-3">
-            <label for="inputPassword" class="sr-only">Password</label>
-            <input type="password" #password="ngModel" required name="password" [(ngModel)]="user_data['password']"
-                class="form-control" id="inputPassword" placeholder="Password">
-        </div>
+    <div class="mb-3">
+      <label class="sr-only" for="inputPassword">Password</label>
+      <input #password="ngModel" [(ngModel)]="user_data['password']" class="form-control" id="inputPassword" name="password"
+             placeholder="Password" required type="password">
+    </div>
 
-        <div [hidden]="password.valid || password.pristine" class="alert alert-danger">
-            Password is required
-        </div>
+    <div [hidden]="password.valid || password.pristine" class="alert alert-danger">
+      Password is required
+    </div>
 
-        <div class="mb-3">
-            <label for="descrizione_docente" class="form-label">Description</label>
-            <textarea #descrizione_docente="ngModel" name="descrizione_docente"
-                [(ngModel)]="user_data['description']" class="form-control" id="descrizione_docente"
+    <div class="mb-3">
+      <label class="form-label" for="descrizione_docente">Description</label>
+      <textarea #descrizione_docente="ngModel" [(ngModel)]="user_data['description']"
+                class="form-control" id="descrizione_docente" name="descrizione_docente"
                 placeholder="Enter description..."></textarea>
-        </div>
+    </div>
 
-        <div class="mb-3">
-            <label for="link_pagina_docente" class="form-label">Lecturer page link</label>
-            <input type="text" #citta="ngModel" required name="link_pagina_docente"
-                [(ngModel)]="user_data['teacherPageLink']" class="form-control" id="link_pagina_docente"
-                placeholder="Enter link">
-        </div>
+    <div class="mb-3">
+      <label class="form-label" for="link_pagina_docente">Lecturer page link</label>
+      <input #citta="ngModel" [(ngModel)]="user_data['teacherPageLink']" class="form-control" id="link_pagina_docente"
+             name="link_pagina_docente" placeholder="Enter link" required
+             type="text">
+    </div>
 
-        <div class="mb-3">
-            <label for="formFile" class="form-label">Picture profile</label>
-            <input class="form-control" type="file" id="formFile" name="profilePicture" (change)="onFileSelected($event)">
-        </div>
+    <div class="mb-3">
+      <label class="form-label" for="formFile">Picture profile</label>
+      <input (change)="onFileSelected($event)" class="form-control" id="formFile" name="profilePicture" type="file">
+    </div>
 
-        <div *ngIf="errormessage" class="alert alert-danger" role="alert">
-            Activation error: {{errormessage}}
-        </div>
+    <div *ngIf="errormessage" class="alert alert-danger" role="alert">
+      Activation error: {{errormessage}}
+    </div>
 
-        <button type="button" class="btn btn-lg btn-primary btn-block" [disabled]="!password.valid"
-            (click)="complete_teacher_registration();">
-            Complete registration
-        </button>
+    <button (click)="complete_teacher_registration();" [disabled]="!password.valid" class="btn btn-lg btn-primary btn-block"
+            type="button">
+      Complete registration
+    </button>
 
-        <p class="mt-5 mb-3 text-muted">&copy; 2022</p>
-    </form>
+    <p class="mt-5 mb-3 text-muted">&copy; 2022</p>
+  </form>
 
 </div>

@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {Component, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-message-dialog',
@@ -8,7 +8,8 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class MessageDialogComponent implements OnInit {
 
-  constructor(@Inject(MAT_DIALOG_DATA) public message: { text: string, title: string, error: boolean }) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public message: { text: string, title: string, error: boolean }) {
+  }
 
   ngOnInit(): void {
   }

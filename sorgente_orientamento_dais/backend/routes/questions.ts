@@ -1,5 +1,5 @@
 import * as Course from "../models/Course";
-import {authorize, Role, upload} from "../index";
+import {authorize, imageUpload, Role} from "../index";
 
 const express = require('express');
 const router = express.Router();
@@ -48,7 +48,7 @@ router.get('/:id/answers', async (req, res, next) => {
     return res.status(200).json(question.answers.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()));
 });
 
-router.post('/', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.post('/', imageUpload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     const text = req.body.text;
     if (!text) return next({statusCode: 400, error: true, errormessage: "Text is required."});
 
@@ -72,7 +72,7 @@ router.post('/', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Stude
     });
 });
 
-router.put('/:id', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.put('/:id', imageUpload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
     }, {
@@ -108,7 +108,7 @@ router.put('/:id', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Stu
     });
 });
 
-router.post('/:id/answers', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.post('/:id/answers', imageUpload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     const text = req.body.text;
     if (!text) return next({statusCode: 400, error: true, errormessage: "Text is required."});
 
@@ -164,7 +164,7 @@ router.get('/:id/likes', async (req, res, next) => {
     return res.status(200).json(question.likes);
 });
 
-router.post('/:id/likes', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.post('/:id/likes', imageUpload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
     }, {

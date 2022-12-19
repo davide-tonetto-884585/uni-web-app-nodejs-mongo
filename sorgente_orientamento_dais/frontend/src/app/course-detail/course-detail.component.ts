@@ -1,15 +1,15 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import {Component, OnInit} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
 
-import { CourseHttpService } from '../services/course-http.service';
-import { UserHttpService } from '../services/user-http.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import {Course, courseSchedule, Lesson, Classroom, Question, Teacher} from '../models';
-import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
-import { BACKEND_URL } from '../globals';
-import { QuestionsHttpService } from '../services/questions-http.service';
-import { PageEvent } from '@angular/material/paginator';
-import { StatisticsHttpService } from '../services/statistics-http.service';
+import {CourseHttpService} from '../services/course-http.service';
+import {UserHttpService} from '../services/user-http.service';
+import {ActivatedRoute} from '@angular/router';
+import {Course, courseSchedule, Question, Statistics, Teacher} from '../models';
+import {MessageDialogComponent} from '../message-dialog/message-dialog.component';
+import {BACKEND_URL} from '../globals';
+import {QuestionsHttpService} from '../services/questions-http.service';
+import {PageEvent} from '@angular/material/paginator';
+import {StatisticsHttpService} from '../services/statistics-http.service';
 import {UserDataHttpService} from "../services/user-data-http.service";
 
 @Component({
@@ -34,7 +34,7 @@ export class CourseDetailComponent implements OnInit {
   skip: number = 0;
   count: number = 0;
 
-  statistics: any;
+  statistics?: Statistics;
 
   constructor(
     private course_http: CourseHttpService,
@@ -44,7 +44,8 @@ export class CourseDetailComponent implements OnInit {
     public dialog: MatDialog,
     private statistics_http: StatisticsHttpService,
     private user_data_http: UserDataHttpService
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe(params => {
@@ -76,23 +77,23 @@ export class CourseDetailComponent implements OnInit {
         next: (res) => {
           this.statistics = res;
           let conf = Array();
-          res.confronto_programmazioni_corso.forEach((prog: any, index: number) => {
+          res.schedulesComparison.forEach((prog: any, index: number) => {
             conf.push({
-              name: `Schedule ${index + 1} (${prog.modalita})`,
+              name: `Schedule ${index + 1} (${prog.modality})`,
               series: [
                 {
                   name: 'Registrations',
-                  value: prog.num_iscrizioni
+                  value: prog.inscriptionCount
                 },
                 {
                   name: 'Attendance',
-                  value: prog.num_presenze
+                  value: prog.attendanceCount
                 }
               ]
             })
           })
 
-          this.statistics.confronto_programmazioni_corso = conf;
+          this.statistics.schedulesComparison = conf;
         }
       })
     }

@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { UserHttpService } from '../services/user-http.service';
-import { Router } from '@angular/router';
+import {UserHttpService} from '../services/user-http.service';
+import {Router} from '@angular/router';
 
-import { User } from '../models'
+import {User} from '../models'
 
 @Component({
   selector: 'app-student-signup',
@@ -12,9 +12,10 @@ import { User } from '../models'
 })
 export class StudentSignupComponent implements OnInit {
   errmessage: string | undefined;
-  user: User = { mail: '', password: null, name: '', surname: '', birthdate: '', gender: '' };
+  user: User = {mail: '', password: null, name: '', surname: '', birthdate: '', gender: ''};
 
-  constructor(private user_http: UserHttpService, private router: Router) { }
+  constructor(private user_http: UserHttpService, private router: Router) {
+  }
 
   ngOnInit(): void {
   }
@@ -24,7 +25,7 @@ export class StudentSignupComponent implements OnInit {
       next: (d) => {
         console.log('Registration ok: ' + JSON.stringify(d));
         this.errmessage = undefined;
-        this.router.navigate(['/login'], { queryParams: { errmessage: 'You will soon receive a confirmation email with an activation link to access the site' } });
+        this.router.navigate(['/login'], {queryParams: {errmessage: 'You will soon receive a confirmation email with an activation link to access the site'}});
       },
       error: (err) => {
         console.log('Signup error: ' + JSON.stringify(err.error.errormessage));

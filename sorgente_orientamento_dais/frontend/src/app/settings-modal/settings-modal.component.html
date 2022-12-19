@@ -1,24 +1,24 @@
 <h4 mat-dialog-title>Application settings</h4>
 <div mat-dialog-content>
-    <form *ngIf="settings">
-        <mat-form-field class="w-100" appearance="fill">
-            <mat-label>student active enrolment limit</mat-label>
-            <input matInput type="number" placeholder="Enter limit..." [value]="settings.studentInscriptionsLimit"
-            [(ngModel)]="settings.studentInscriptionsLimit" name="regisration_limit">
-        </mat-form-field>
+  <form *ngIf="settings">
+    <mat-form-field appearance="fill" class="w-100">
+      <mat-label>student active enrolment limit</mat-label>
+      <input [(ngModel)]="settings.studentInscriptionsLimit" [value]="settings.studentInscriptionsLimit" matInput name="regisration_limit"
+             placeholder="Enter limit..." type="number">
+    </mat-form-field>
 
-        <mat-form-field class="w-100" appearance="fill">
-            <mat-label>Courses per teacher limit</mat-label>
-            <input matInput type="number" placeholder="Enter limit..." [value]="settings.teacherCoursesLimit"
-            [(ngModel)]="settings.teacherCoursesLimit" name="course_per_teacher_limit">
-        </mat-form-field>
+    <mat-form-field appearance="fill" class="w-100">
+      <mat-label>Courses per teacher limit</mat-label>
+      <input [(ngModel)]="settings.teacherCoursesLimit" [value]="settings.teacherCoursesLimit" matInput name="course_per_teacher_limit"
+             placeholder="Enter limit..." type="number">
+    </mat-form-field>
 
-        <mat-form-field class="w-100" appearance="fill">
-            <mat-label>Minimum attendance percentage</mat-label>
-            <input matInput type="number" placeholder="Enter limit..." [value]="settings.minimumAttendancePercentage"
-            [(ngModel)]="settings.minimumAttendancePercentage" name="presenza_minima" min="0" max="100">
-        </mat-form-field>
+    <mat-form-field appearance="fill" class="w-100">
+      <mat-label>Minimum attendance percentage</mat-label>
+      <input [(ngModel)]="settings.minimumAttendancePercentage" [value]="settings.minimumAttendancePercentage" matInput max="100"
+             min="0" name="presenza_minima" placeholder="Enter limit..." type="number">
+    </mat-form-field>
 
-        <button type="button" class="btn btn-outline-success" (click)="updateSettings()">Save</button>
-    </form>
+    <button (click)="updateSettings()" class="btn btn-outline-success" type="button">Save</button>
+  </form>
 </div>

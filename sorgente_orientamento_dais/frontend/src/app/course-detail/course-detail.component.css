@@ -1,14 +1,14 @@
 #main-div {
-    background: linear-gradient(to right, #ab1636, #c53a63);;
+  background: linear-gradient(to right, #ab1636, #c53a63);;
 }
 
 #descr {
-    white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 
 .chart-wrapper {
-    height: 400px;
-    width: 100%;
-    min-width: 500px;
-    overflow: auto;
+  height: 400px;
+  width: 100%;
+  min-width: 500px;
+  overflow: auto;
 }

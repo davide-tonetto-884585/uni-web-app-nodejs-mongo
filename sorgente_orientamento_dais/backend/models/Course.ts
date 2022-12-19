@@ -97,7 +97,7 @@ const courseSchema = new mongoose.Schema({
     questions: [Question.getSchema()]
 });
 
-courseSchema.methods.addSchedule = function(modality, inscriptionLimit, certificatePassword): void {
+courseSchema.methods.addSchedule = function (modality, inscriptionLimit, certificatePassword): void {
     this.schedules.push({
         modality: modality,
         inscriptionLimit: inscriptionLimit,
@@ -105,7 +105,7 @@ courseSchema.methods.addSchedule = function(modality, inscriptionLimit, certific
     });
 }
 
-courseSchema.methods.addQuestion = function(userId, text): void {
+courseSchema.methods.addQuestion = function (userId, text): void {
     this.questions.push({
         userId: userId,
         text: text

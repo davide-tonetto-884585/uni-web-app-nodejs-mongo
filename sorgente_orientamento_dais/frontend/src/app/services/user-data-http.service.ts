@@ -1,6 +1,5 @@
 import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
 import {Injectable} from '@angular/core';
-import {Router} from '@angular/router';
 import {catchError, Observable, throwError} from 'rxjs';
 import {BACKEND_URL} from '../globals';
 import {Student, Teacher, User} from '../models';
@@ -12,31 +11,6 @@ import {UserHttpService} from './user-http.service';
 export class UserDataHttpService {
 
   constructor(private http: HttpClient, private user_http: UserHttpService) {
-  }
-
-  // crea le opzioni di base per le richieste HTTP
-  private createOptions(params = {}) {
-    return {
-      headers: new HttpHeaders({
-        'authorization': 'Bearer ' + this.user_http.getToken(),
-        'cache-control': 'no-cache',
-      }),
-      params: new HttpParams({fromObject: params})
-    };
-  }
-
-  // riorna informazioni su eventuali errori delle richieste HTTP
-  private handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      console.error('An error occurred:', error.error.message);
-      return throwError(() => error.error.message);
-    } else {
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        'body was: ' + JSON.stringify(error.error));
-
-      return throwError(() => error.error.errormessage);
-    }
   }
 
   // richiesta al backend delle informazioni di un utente
@@ -99,5 +73,30 @@ export class UserDataHttpService {
       form_data,
       this.createOptions()
     ).pipe(catchError(this.handleError));
+  }
+
+  // crea le opzioni di base per le richieste HTTP
+  private createOptions(params = {}) {
+    return {
+      headers: new HttpHeaders({
+        'authorization': 'Bearer ' + this.user_http.getToken(),
+        'cache-control': 'no-cache',
+      }),
+      params: new HttpParams({fromObject: params})
+    };
+  }
+
+  // riorna informazioni su eventuali errori delle richieste HTTP
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error('An error occurred:', error.error.message);
+      return throwError(() => error.error.message);
+    } else {
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        'body was: ' + JSON.stringify(error.error));
+
+      return throwError(() => error.error.errormessage);
+    }
   }
 }

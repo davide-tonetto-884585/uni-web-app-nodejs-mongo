@@ -1,27 +1,27 @@
 <app-top-bar></app-top-bar>
 <div class="container mt-5 mb-5">
-    <div class="row justify-content-center mb-5">
-        <div class="col-4">
-            <img id="picture" title="profile pic"
-                [src]="teacher?.profilePicture ? this.BACKEND_URL + '/' + teacher.profilePicture : '/assets/images/custom-logo.png'">
-        </div>
-        <div class="col-4">
-            <h1>{{ teacher?.name }} {{ teacher?.surname }}</h1>
-            <a [href]="teacher?.teacherPageLink">Lecturer page link</a>
-        </div>
+  <div class="row justify-content-center mb-5">
+    <div class="col-4">
+      <img [src]="teacher?.profilePicture ? this.BACKEND_URL + '/' + teacher.profilePicture : '/assets/images/custom-logo.png'" id="picture"
+           title="profile pic">
     </div>
-    <hr>
-    <div class="container">
-        <h1>Bio</h1>
-        <p>{{ teacher?.description }}</p>
+    <div class="col-4">
+      <h1>{{ teacher?.name }} {{ teacher?.surname }}</h1>
+      <a [href]="teacher?.teacherPageLink">Lecturer page link</a>
     </div>
-    <hr>
-    <div *ngIf="teacher_courses.length > 0" class="container">
-        <h1>Courses</h1>
-        <div class="row" *ngFor="let i of counter(teacher_courses.length / 3 | ceil)">
-            <app-course-card *ngIf="teacher_courses[i * 3]" [course]="teacher_courses[i * 3]"></app-course-card>
-            <app-course-card *ngIf="teacher_courses[i * 3 + 1]" [course]="teacher_courses[i * 3 + 1]"></app-course-card>
-            <app-course-card *ngIf="teacher_courses[i * 3 + 2]" [course]="teacher_courses[i * 3 + 2]"></app-course-card>
-        </div>
+  </div>
+  <hr>
+  <div class="container">
+    <h1>Bio</h1>
+    <p>{{ teacher?.description }}</p>
+  </div>
+  <hr>
+  <div *ngIf="teacher_courses.length > 0" class="container">
+    <h1>Courses</h1>
+    <div *ngFor="let i of counter(teacher_courses.length / 3 | ceil)" class="row">
+      <app-course-card *ngIf="teacher_courses[i * 3]" [course]="teacher_courses[i * 3]"></app-course-card>
+      <app-course-card *ngIf="teacher_courses[i * 3 + 1]" [course]="teacher_courses[i * 3 + 1]"></app-course-card>
+      <app-course-card *ngIf="teacher_courses[i * 3 + 2]" [course]="teacher_courses[i * 3 + 2]"></app-course-card>
     </div>
+  </div>
 </div>

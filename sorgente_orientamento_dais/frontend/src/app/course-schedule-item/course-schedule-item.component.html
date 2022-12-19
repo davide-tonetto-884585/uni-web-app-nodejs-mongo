@@ -1,49 +1,57 @@
 <mat-expansion-panel (opened)="loadLessons()" class="mb-2">
-    <mat-expansion-panel-header>
-        <mat-panel-title>
-            {{ (prog != undefined && prog.lessons != undefined && prog.lessons.length > 0 ?
-            'from ' + (prog.lessons[0].date | date:'EEEE, d MMMM y') : '') }}
-        </mat-panel-title>
-        <mat-panel-description>
-            {{ (prog?.lessons?.length ?? 0) + ' lessons ' }}
-            {{ (getFreeSetsCount() != undefined ? '- ' + getFreeSetsCount() + ' remaining places' : '') }}
-        </mat-panel-description>
-    </mat-expansion-panel-header>
-    <p><strong>Modality:</strong> {{ prog?.modality }} </p>
-    <p *ngIf="prog?.inscriptionLimit"><strong>Limit:</strong> {{ prog?.inscriptionLimit }} students</p>
-    <p><strong>Lessons:</strong></p>
-    <ol>
-        <li *ngFor="let les of prog?.lessons">
-            <p class="m-1">
-                <b>{{ les.date | date:'EEEE, d MMMM y' }}</b>
-                from <b>{{ les.startTime.substring(0, les.startTime.length - 3) }}</b>
-                to <b>{{ les.endTime.substring(0, les.endTime.length - 3) }}</b>
-                <i *ngIf="les.classroom"> ({{ les.classroom.name + ", edifice " + les.classroom.building + " campus " +
-                    les.classroom.campus + " - " + les.classroom.capacity + "students" }}) </i>.
-                <button matTooltip="Students have to scan this QR to mark attendance at the lesson"
-                    *ngIf="isCourseTeacher()" class="btn btn-outline-warning"
-                    (click)="showQR(id_corso ?? '', prog?._id ?? '', les._id, les.presencePasscode)">Show
-                    QR</button>
-            </p>
-        </li>
-    </ol>
-    <div *ngIf="QRInfo != null" class="container text-center">
-        <qr-code [value]="QRInfo" [size]="200"></qr-code>
-    </div>
-    <div *ngIf="checkInscriptionLimit() && isProgInCorso()">
-        <button *ngIf="this.isLogged() && this.isStudent() && prog?.modality == 'duale'" type="button"
-                class="btn btn-danger m-1" (click)="enrollStudent(false)">Enroll Online</button>
-        <button *ngIf="this.isLogged() && this.isStudent() && prog?.modality == 'duale'" type="button"
-                class="btn btn-danger m-1" (click)="enrollStudent(true)">Enroll In place</button>
-
-        <button *ngIf="this.isLogged() && this.isStudent() && prog?.modality != 'duale'" type="button"
-                class="btn btn-danger m-1" (click)="enrollStudent()">Enroll</button>
-
-        <button *ngIf="!this.isLogged()" type="button" class="btn btn-danger" routerLink="/login">
-            Login to enroll
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      {{ (prog != undefined && prog.lessons != undefined && prog.lessons.length > 0 ?
+      'from ' + (prog.lessons[0].date | date:'EEEE, d MMMM y') : '') }}
+    </mat-panel-title>
+    <mat-panel-description>
+      {{ (prog?.lessons?.length ?? 0) + ' lessons ' }}
+      {{ (getFreeSetsCount() != undefined ? '- ' + getFreeSetsCount() + ' remaining places' : '') }}
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+  <p><strong>Modality:</strong> {{ prog?.modality }} </p>
+  <p *ngIf="prog?.inscriptionLimit"><strong>Limit:</strong> {{ prog?.inscriptionLimit }} students</p>
+  <p><strong>Lessons:</strong></p>
+  <ol>
+    <li *ngFor="let les of prog?.lessons">
+      <p class="m-1">
+        <b>{{ les.date | date:'EEEE, d MMMM y' }}</b>
+        from <b>{{ les.startTime.substring(0, les.startTime.length - 3) }}</b>
+        to <b>{{ les.endTime.substring(0, les.endTime.length - 3) }}</b>
+        <i *ngIf="les.classroom"> ({{ les.classroom.name + ", edifice " + les.classroom.building + " campus " +
+        les.classroom.campus + " - " + les.classroom.capacity + " students" }})</i>.
+        <button (click)="showQR(id_corso ?? '', prog?._id ?? '', les._id, les.presencePasscode)"
+                *ngIf="isCourseTeacher()" class="btn btn-outline-warning"
+                matTooltip="Students have to scan this QR to mark attendance at the lesson">Show
+          QR
         </button>
-    </div>
-    <div *ngIf="isInscriptionLimitReached()" class="alert alert-danger" role="alert">
-        registration limit reached
-    </div>
+      </p>
+    </li>
+  </ol>
+  <div *ngIf="QRInfo != null" class="container text-center">
+    <qr-code [size]="200" [value]="QRInfo"></qr-code>
+  </div>
+  <div *ngIf="checkInscriptionLimit() && isProgInCorso()">
+    <button (click)="enrollStudent(false)" *ngIf="this.isLogged() && this.isStudent() && prog?.modality === 'Dual'"
+            class="btn btn-danger m-1" type="button">Enroll Online
+    </button>
+    <button (click)="enrollStudent(true)" *ngIf="this.isLogged() && this.isStudent() && prog?.modality === 'Dual'"
+            class="btn btn-danger m-1" type="button">Enroll In place
+    </button>
+
+    <button (click)="enrollStudent(true)" *ngIf="this.isLogged() && this.isStudent() && prog?.modality === 'In presence'"
+            class="btn btn-danger m-1" type="button">Enroll
+    </button>
+
+    <button (click)="enrollStudent(false)" *ngIf="this.isLogged() && this.isStudent() && prog?.modality === 'Online'"
+            class="btn btn-danger m-1" type="button">Enroll
+    </button>
+
+    <button *ngIf="!this.isLogged()" class="btn btn-danger" routerLink="/login" type="button">
+      Login to enroll
+    </button>
+  </div>
+  <div *ngIf="isInscriptionLimitReached()" class="alert alert-danger" role="alert">
+    registration limit reached
+  </div>
 </mat-expansion-panel>

@@ -1,5 +1,5 @@
 <div (click)="openTeacherPage()">
-    <img id="picture" title="profile pic"
-        [src]="teacher?.profilePicture ? this.BACKEND_URL + '/' + teacher?.profilePicture : '/assets/images/custom-logo.png'">
-    <mat-card-subtitle class="text-white mb-0">{{ teacher?.surname }} {{ teacher?.name }}</mat-card-subtitle>
+  <img [src]="teacher?.profilePicture ? this.BACKEND_URL + '/' + teacher?.profilePicture : '/assets/images/custom-logo.png'" id="picture"
+       title="profile pic">
+  <mat-card-subtitle class="text-white mb-0">{{ teacher?.surname }} {{ teacher?.name }}</mat-card-subtitle>
 </div>

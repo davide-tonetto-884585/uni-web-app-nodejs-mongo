@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 
-import { UserHttpService } from '../services/user-http.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { BACKEND_URL } from '../globals';
+import {UserHttpService} from '../services/user-http.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {BACKEND_URL} from '../globals';
 
 @Component({
   selector: 'app-activate-profile',
@@ -11,20 +11,21 @@ import { BACKEND_URL } from '../globals';
   styleUrls: ['./activate-profile.component.css']
 })
 export class ActivateProfileComponent implements OnInit {
-  private activation_token: any;
-  private user_id: any;
   category: any;
   user_data: any = {};
   errormessage: string | undefined;
   schools: any = [];
   school_input: string = "";
+  private activation_token: any;
+  private user_id: any;
 
   constructor(
     private user_http: UserHttpService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private http: HttpClient
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe(params => {

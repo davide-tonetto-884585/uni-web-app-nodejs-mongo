@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { SettingsHttpService } from '../services/settings-http.service';
+import {Component, OnInit} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {SettingsHttpService} from '../services/settings-http.service';
 
 @Component({
   selector: 'app-settings-modal',
@@ -13,7 +13,8 @@ export class SettingsModalComponent implements OnInit {
   constructor(
     private settings_http: SettingsHttpService,
     private dialog: MatDialog
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.settings_http.getCurrentSettings().subscribe({

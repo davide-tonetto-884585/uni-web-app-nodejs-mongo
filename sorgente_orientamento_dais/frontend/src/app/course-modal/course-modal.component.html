@@ -1,163 +1,164 @@
 <h4 mat-dialog-title>{{ (!this.isNew ? 'Edit course "' + this.course.title + '"' : 'New course') }}</h4>
 <div mat-dialog-content>
-    <form>
-        <mat-form-field class="fw" appearance="fill">
-            <mat-label>Title</mat-label>
-            <input matInput placeholder="Course title..." [value]="this.course.title" name="titolo"
-                   [(ngModel)]="this.course.title">
+  <form>
+    <mat-form-field appearance="fill" class="fw">
+      <mat-label>Title</mat-label>
+      <input [(ngModel)]="this.course.title" [value]="this.course.title" matInput name="titolo"
+             placeholder="Course title...">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="fw">
+      <mat-label>Description</mat-label>
+      <textarea [(ngModel)]="this.course.description" matInput name="descrizione"
+                placeholder="Course description...">{{ this.course.description }}</textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="fw">
+      <mat-label>Language</mat-label>
+      <input [(ngModel)]="this.course.language" [value]="this.course.language" matInput name="lingua"
+             placeholder="Course language...">
+    </mat-form-field>
+
+    <div class="input-group mb-3">
+      <label class="input-group-text" for="inputGroupFile01">Cover image</label>
+      <input (change)="upload_immagine_copertina($event)" class="form-control" id="inputGroupFile01" name="immagine_copertina"
+             placeholder="Choose an image..." type="file">
+    </div>
+
+    <div class="input-group mb-3">
+      <label class="input-group-text" for="inputGroupFile02">Final certificate</label>
+      <input (change)="upload_file_certificato($event)" class="form-control" id="inputGroupFile02" name="file_certificato"
+             placeholder="Choose a file..." type="file">
+    </div>
+
+    <input [(ngModel)]="this.course.enabled" [checked]="this.course.enabled" name="abilitato" title="Course visibility"
+           type="checkbox" value="remember-me">
+    Visible <br>
+
+    <hr>
+
+    <div class="row">
+      <div class="col">
+        <h5 class="mt-3">Course schedules</h5>
+      </div>
+      <div class="col d-flex justify-content-end">
+        <button (click)="addProgCorso()" class="btn btn-outline-danger mt-3 mb-3" type="button">Add</button>
+      </div>
+    </div>
+
+    <div *ngFor="let prog of progs; index as i" class="container mb-1">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            Course schedule {{ i + 1 }}
+          </mat-panel-title>
+          <mat-panel-description>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <mat-form-field appearance="fill" class="fw">
+          <mat-label>Modality</mat-label>
+          <mat-select [(ngModel)]="prog.modality" [(value)]="prog.modality" [name]="course._id + 'modalita' + i">
+            <mat-option [value]="'Online'">
+              Online
+            </mat-option>
+            <mat-option [value]="'In presence'">
+              In place
+            </mat-option>
+            <mat-option [value]="'Dual'">
+              Dual
+            </mat-option>
+          </mat-select>
         </mat-form-field>
 
-        <mat-form-field class="fw" appearance="fill">
-            <mat-label>Description</mat-label>
-            <textarea matInput placeholder="Course description..." name="descrizione"
-                [(ngModel)]="this.course.description">{{ this.course.description }}</textarea>
+        <mat-form-field appearance="fill" class="fw">
+          <mat-label>Inscription limit</mat-label>
+          <input [(ngModel)]="prog.inscriptionLimit" [name]="course._id + 'limite_iscrizioni' + i" [value]="prog.inscriptionLimit?.toString()" matInput
+                 placeholder="Inscription limit..." type="number">
         </mat-form-field>
 
-        <mat-form-field class="fw" appearance="fill">
-            <mat-label>Language</mat-label>
-            <input matInput placeholder="Course language..." name="lingua" [value]="this.course.language"
-                [(ngModel)]="this.course.language">
+        <mat-form-field appearance="fill" class="fw">
+          <mat-label>Certficate password</mat-label>
+          <input [(ngModel)]="prog.certificatePassword" [name]="course._id + 'password_certificato' + i" [value]="prog.certificatePassword"
+                 matInput placeholder="Certficate password..."
+                 type="text">
         </mat-form-field>
-
-        <div class="input-group mb-3">
-            <label class="input-group-text" for="inputGroupFile01">Cover image</label>
-            <input placeholder="Choose an image..." type="file" class="form-control" name="immagine_copertina"
-                id="inputGroupFile01" (change)="upload_immagine_copertina($event)">
-        </div>
-
-        <div class="input-group mb-3">
-            <label class="input-group-text" for="inputGroupFile02">Final certificate</label>
-            <input placeholder="Choose a file..." type="file" class="form-control" name="file_certificato"
-                id="inputGroupFile02" (change)="upload_file_certificato($event)">
-        </div>
-
-        <input title="Course visibility" type="checkbox" name="abilitato" [checked]="this.course.enabled"
-               [(ngModel)]="this.course.enabled" value="remember-me">
-        Visible <br>
-
-        <hr>
 
         <div class="row">
-            <div class="col">
-                <h5 class="mt-3">Course schedules</h5>
-            </div>
-            <div class="col d-flex justify-content-end">
-                <button type="button" class="btn btn-outline-danger mt-3 mb-3" (click)="addProgCorso()">Add</button>
-            </div>
+          <div class="col">
+            <h5 class="mt-3">Lessons</h5>
+          </div>
+          <div class="col d-flex justify-content-end">
+            <button (click)="addProgLesson(i)" class="btn btn-outline-danger mt-3 mb-3"
+                    type="button">Add
+            </button>
+          </div>
         </div>
 
-        <div class="container mb-1" *ngFor="let prog of progs; index as i">
-            <mat-expansion-panel>
-                <mat-expansion-panel-header>
-                    <mat-panel-title>
-                        Course schedule {{ i + 1 }}
-                    </mat-panel-title>
-                    <mat-panel-description>
-                    </mat-panel-description>
-                </mat-expansion-panel-header>
-                <mat-form-field appearance="fill" class="fw">
-                    <mat-label>Modality</mat-label>
-                    <mat-select [(value)]="prog.modality" [name]="course._id + 'modalita' + i" [(ngModel)]="prog.modality">
-                        <mat-option [value]="'Online'">
-                            Online
-                        </mat-option>
-                        <mat-option [value]="'In presence'">
-                            In place
-                        </mat-option>
-                        <mat-option [value]="'Dual'">
-                            Dual
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+        <div *ngFor="let les of prog.lessons; index as il" class="container mb-1">
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Lesson {{ il + 1 }}
+              </mat-panel-title>
+              <mat-panel-description>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <mat-form-field appearance="fill" class="fw mb-1">
+              <mat-label>Choose a date</mat-label>
+              <input (dateChange)="adjustDate(les, $event)" [matDatepicker]="picker" [name]="'data' + il + '_' + i" matInput
+                     placeholder="Choose a date..." value="{{ les.date }}">
+              <mat-datepicker-toggle [for]="picker" matSuffix></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
 
-                <mat-form-field class="fw" appearance="fill">
-                    <mat-label>Inscription limit</mat-label>
-                    <input matInput type="number" placeholder="Inscription limit..." [value]="prog.inscriptionLimit"
-                           [name]="course._id + 'limite_iscrizioni' + i" [(ngModel)]="prog.inscriptionLimit">
-                </mat-form-field>
+            <mat-form-field appearance="fill" class="fw">
+              <mat-label>Start time</mat-label>
+              <input [(ngModel)]="les.startTime" [name]="'orario_inizio' + il + '_' + i" [value]="les.startTime"
+                     matInput placeholder="00:00:00 (format 24h)">
+            </mat-form-field>
 
-                <mat-form-field class="fw" appearance="fill">
-                    <mat-label>Certficate password</mat-label>
-                    <input matInput type="text" placeholder="Certficate password..."
-                           [value]="prog.certificatePassword" [name]="course._id + 'password_certificato' + i"
-                           [(ngModel)]="prog.certificatePassword">
-                </mat-form-field>
+            <mat-form-field appearance="fill" class="fw">
+              <mat-label>End time</mat-label>
+              <input [(ngModel)]="les.endTime" [name]="'orario_fine' + il + '_' + i" [value]="les.endTime"
+                     matInput placeholder="00:00:00 (format 24h)">
+            </mat-form-field>
 
-                <div class="row">
-                    <div class="col">
-                        <h5 class="mt-3">Lessons</h5>
-                    </div>
-                    <div class="col d-flex justify-content-end">
-                        <button type="button" class="btn btn-outline-danger mt-3 mb-3"
-                            (click)="addProgLesson(i)">Add</button>
-                    </div>
-                </div>
+            <mat-form-field *ngIf="prog.modality != 'presenza'" appearance="fill" class="fw">
+              <mat-label>Online classroom link</mat-label>
+              <input [(ngModel)]="les.virtualRoomLink" [name]="'link_stanza_virtuale' + il + '_' + i" [value]="les.virtualRoomLink"
+                     matInput placeholder="Link...">
+            </mat-form-field>
 
-                <div class="container mb-1" *ngFor="let les of prog.lessons; index as il">
-                    <mat-expansion-panel>
-                        <mat-expansion-panel-header>
-                            <mat-panel-title>
-                                Lesson {{ il + 1 }}
-                            </mat-panel-title>
-                            <mat-panel-description>
-                            </mat-panel-description>
-                        </mat-expansion-panel-header>
-                        <mat-form-field appearance="fill" class="fw mb-1">
-                            <mat-label>Choose a date</mat-label>
-                            <input matInput [matDatepicker]="picker" placeholder="Choose a date..." value="{{ les.date }}"
-                                [name]="'data' + il + '_' + i" (dateChange)="adjustDate(les, $event)">
-                            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                            <mat-datepicker #picker></mat-datepicker>
-                        </mat-form-field>
+            <mat-form-field *ngIf="prog.modality != 'presenza'" appearance="fill" class="fw">
+              <mat-label>Online classroom passcode</mat-label>
+              <input [(ngModel)]="les.virtualRoomPasscode" [name]="'passcode_stanza_virtuale' + il + '_' + i" [value]="les.virtualRoomPasscode"
+                     matInput placeholder="Passcode..."
+                     type="text">
+            </mat-form-field>
 
-                        <mat-form-field class="fw" appearance="fill">
-                            <mat-label>Start time</mat-label>
-                            <input matInput placeholder="00:00:00 (format 24h)" [value]="les.startTime"
-                                [name]="'orario_inizio' + il + '_' + i" [(ngModel)]="les.startTime">
-                        </mat-form-field>
+            <mat-form-field appearance="fill" class="fw">
+              <mat-label>Attendance validation passcode</mat-label>
+              <input [(ngModel)]="les.presencePasscode" [name]="'codice_verifica_presenza' + il + '_' + i" [value]="les.presencePasscode"
+                     matInput placeholder="Passcode..."
+                     type="text">
+            </mat-form-field>
 
-                        <mat-form-field class="fw" appearance="fill">
-                            <mat-label>End time</mat-label>
-                            <input matInput placeholder="00:00:00 (format 24h)" [value]="les.endTime"
-                                [name]="'orario_fine' + il + '_' + i" [(ngModel)]="les.endTime">
-                        </mat-form-field>
-
-                        <mat-form-field *ngIf="prog.modality != 'presenza'" class="fw" appearance="fill">
-                            <mat-label>Online classroom link</mat-label>
-                            <input matInput placeholder="Link..." [value]="les.virtualRoomLink"
-                                [name]="'link_stanza_virtuale' + il + '_' + i" [(ngModel)]="les.virtualRoomLink">
-                        </mat-form-field>
-
-                        <mat-form-field *ngIf="prog.modality != 'presenza'" class="fw" appearance="fill">
-                            <mat-label>Online classroom passcode</mat-label>
-                            <input matInput type="text" placeholder="Passcode..."
-                                   [value]="les.virtualRoomPasscode" [name]="'passcode_stanza_virtuale' + il + '_' + i"
-                                   [(ngModel)]="les.virtualRoomPasscode">
-                        </mat-form-field>
-
-                        <mat-form-field class="fw" appearance="fill">
-                            <mat-label>Attendance validation passcode</mat-label>
-                            <input matInput type="text" placeholder="Passcode..."
-                                   [value]="les.presencePasscode" [name]="'codice_verifica_presenza' + il + '_' + i"
-                                   [(ngModel)]="les.presencePasscode">
-                        </mat-form-field>
-
-                        <mat-form-field *ngIf="prog.modality != 'online'" appearance="fill" class="fw">
-                            <mat-label>Classroom</mat-label>
-                            <mat-select [(value)]="les.classroomId" [name]="'id_aula' + il + '_' + i" [(ngModel)]="les.classroomId">
-                                <mat-option *ngFor="let aula of aule" [value]="aula._id">
-                                    {{ aula.name + ", " + aula.building + " " + aula.campus + " (" + aula.capacity + "students)" }}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    </mat-expansion-panel>
-                </div>
-            </mat-expansion-panel>
+            <mat-form-field *ngIf="prog.modality != 'online'" appearance="fill" class="fw">
+              <mat-label>Classroom</mat-label>
+              <mat-select [(ngModel)]="les.classroomId" [(value)]="les.classroomId" [name]="'id_aula' + il + '_' + i">
+                <mat-option *ngFor="let aula of aule" [value]="aula._id">
+                  {{ aula.name + ", " + aula.building + " " + aula.campus + " (" + aula.capacity + "students)" }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </mat-expansion-panel>
         </div>
+      </mat-expansion-panel>
+    </div>
 
-        <hr>
+    <hr>
 
-        <button *ngIf="this.isNew" type="button" class="btn btn-outline-success" (click)="addCourse()">Add</button>
-        <button *ngIf="!this.isNew" type="button" class="btn btn-outline-success" (click)="updateCourse()">Save</button>
-    </form>
+    <button (click)="addCourse()" *ngIf="this.isNew" class="btn btn-outline-success" type="button">Add</button>
+    <button (click)="updateCourse()" *ngIf="!this.isNew" class="btn btn-outline-success" type="button">Save</button>
+  </form>
 </div>

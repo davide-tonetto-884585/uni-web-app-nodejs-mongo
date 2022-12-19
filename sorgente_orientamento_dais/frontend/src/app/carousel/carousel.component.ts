@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-carousel',
@@ -6,9 +6,9 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./carousel.component.css']
 })
 export class CarouselComponent implements OnInit {
+  static id: number = 0;
   @Input() title: string = "";
   @Input() exploreLink: string | undefined;
-  static id: number = 0;
   personal_id: number = CarouselComponent.id;
 
   constructor() {

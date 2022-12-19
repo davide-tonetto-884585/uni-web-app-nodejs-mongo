@@ -1,11 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { AulaHttpService } from '../services/aula-http.service';
-import { CourseHttpService } from '../services/course-http.service';
-import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
-import {Classroom, Lesson, courseSchedule, Teacher} from '../models';
-import { UserHttpService } from '../services/user-http.service';
-import { SECRET, FRONTEND_URL } from '../globals';
+import {Component, Input, OnInit} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {AulaHttpService} from '../services/aula-http.service';
+import {CourseHttpService} from '../services/course-http.service';
+import {MessageDialogComponent} from '../message-dialog/message-dialog.component';
+import {Classroom, courseSchedule, Lesson, Teacher} from '../models';
+import {UserHttpService} from '../services/user-http.service';
+import {FRONTEND_URL, SECRET} from '../globals';
 import * as CryptoJS from 'crypto-js';
 
 @Component({
@@ -25,7 +25,8 @@ export class CourseScheduleItemComponent implements OnInit {
     private aula_http: AulaHttpService,
     private dialog: MatDialog,
     private user_http: UserHttpService,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadLessons();
@@ -43,7 +44,7 @@ export class CourseScheduleItemComponent implements OnInit {
     return this.user_http.isStudent();
   }
 
-  enrollStudent(in_presenza: boolean | null = null) {
+  enrollStudent(in_presenza: boolean) {
     let id_stud = this.user_http.getId()
     if (id_stud && this.prog && this.id_corso) {
       this.course_http.enrollStudent(this.id_corso, this.prog._id, id_stud, in_presenza).subscribe({

@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { CourseHttpService } from '../services/course-http.service';
-import { Router } from '@angular/router';
-import { Course } from '../models';
-import { PageEvent } from '@angular/material/paginator';
+import {CourseHttpService} from '../services/course-http.service';
+import {Router} from '@angular/router';
+import {Course} from '../models';
+import {PageEvent} from '@angular/material/paginator';
 
 @Component({
   selector: 'app-courses',
@@ -24,7 +24,8 @@ export class CoursesComponent implements OnInit {
   constructor(
     private course_http: CourseHttpService,
     private router: Router
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.getCourses();

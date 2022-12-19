@@ -1,13 +1,14 @@
-import {authorize, Role, upload} from "../index";
+import {authorize, imageUpload, Role} from "../index";
 import * as User from '../models/User';
 import * as Course from '../models/Course';
-import * as Classroom from '../models/Classroom';
+
+const fs = require('fs');
+const ini = require('ini');
 
 const express = require('express');
 const router = express.Router();
 
-router.post('/', upload.array(), authorize([Role.Teacher, Role.Admin, Role.Student]), async (req, res, next) => {
-    // TODO: aggiungere limite iscrizioni per studente
+router.post('/', imageUpload.array(), authorize([Role.Teacher, Role.Admin, Role.Student]), async (req, res, next) => {
     if (!req.body.studentId)
         return next({statusCode: 400, error: true, errormessage: "Missing student ID."});
 
@@ -23,6 +24,14 @@ router.post('/', upload.array(), authorize([Role.Teacher, Role.Admin, Role.Stude
             statusCode: 400,
             error: true,
             errormessage: "You are not authorized to subscribe other students."
+        });
+
+    const config = ini.parse(fs.readFileSync('./globalSettings.ini', 'utf-8'));
+    if (student.studentData.inscriptions.length >= config.SETTINGS.studentInscriptionsLimit)
+        return next({
+            statusCode: 400,
+            error: true,
+            errormessage: "Student has reached the maximum number of inscriptions."
         });
 
     let course = await Course.getModel().findOne({

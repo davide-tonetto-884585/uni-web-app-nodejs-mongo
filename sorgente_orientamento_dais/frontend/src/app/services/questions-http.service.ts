@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { tap, catchError } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
+import {catchError} from 'rxjs/operators';
+import {Observable, throwError} from 'rxjs';
 
-import {Course, Lesson, courseSchedule, Classroom, Question, Answer} from '../models';
-import { BACKEND_URL, FRONTEND_URL } from '../globals';
-import { UserHttpService } from './user-http.service';
+import {Answer} from '../models';
+import {BACKEND_URL} from '../globals';
+import {UserHttpService} from './user-http.service';
 
 
 @Injectable({
@@ -15,34 +15,12 @@ export class QuestionsHttpService {
   constructor(
     private http: HttpClient,
     private user_http: UserHttpService,
-  ) { }
-
-  private createOptions(params = {}) {
-    return {
-      headers: new HttpHeaders({
-        'authorization': 'Bearer ' + this.user_http.getToken(),
-        'cache-control': 'no-cache',
-      }),
-      params: new HttpParams({ fromObject: params })
-    };
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      console.error('An error occurred:', error.error.message);
-      return throwError(() => error.error.message);
-    } else {
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        'body was: ' + JSON.stringify(error.error));
-
-      return throwError(() => error.error.errormessage);
-    }
+  ) {
   }
 
   getDomandeCorso(id_corso: string, testo: string | null, chiusa: boolean | null,
-    skip: number | null, limit: number | null, order_by: string | null): Observable<any> {
-    let params = { limit: limit, skip: skip, text: testo, isClosed: chiusa, orderBy: order_by };
+                  skip: number | null, limit: number | null, order_by: string | null): Observable<any> {
+    let params = {limit: limit, skip: skip, text: testo, isClosed: chiusa, orderBy: order_by};
 
     return this.http.get<any>(
       `${BACKEND_URL}/courses/${id_corso}/questions`,
@@ -120,5 +98,28 @@ export class QuestionsHttpService {
       form_data,
       this.createOptions()
     )
+  }
+
+  private createOptions(params = {}) {
+    return {
+      headers: new HttpHeaders({
+        'authorization': 'Bearer ' + this.user_http.getToken(),
+        'cache-control': 'no-cache',
+      }),
+      params: new HttpParams({fromObject: params})
+    };
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error('An error occurred:', error.error.message);
+      return throwError(() => error.error.message);
+    } else {
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        'body was: ' + JSON.stringify(error.error));
+
+      return throwError(() => error.error.errormessage);
+    }
   }
 }

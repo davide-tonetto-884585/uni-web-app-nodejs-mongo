@@ -1,11 +1,14 @@
-import {authorize, Role, upload} from "../index";
+import {authorize, imageUpload, Role} from "../index";
 import * as Course from '../models/Course';
+
+const fs = require('fs');
+const ini = require('ini');
 
 const express = require('express');
 const router = express.Router();
 
 // add schedule to course
-router.post('/', upload.array(), authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
+router.post('/', imageUpload.array(), authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
     let course = await Course.getModel().findOne({_id: res.locals.courseId});
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
 
@@ -28,7 +31,7 @@ router.post('/', upload.array(), authorize([Role.Admin, Role.Teacher]), async (r
 });
 
 // modify course schedule
-router.put('/:scheduleId', upload.array(), authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
+router.put('/:scheduleId', imageUpload.array(), authorize([Role.Admin, Role.Teacher]), async (req, res, next) => {
     // get course with only the schedule we need
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
@@ -62,33 +65,22 @@ router.put('/:scheduleId', upload.array(), authorize([Role.Admin, Role.Teacher])
 
 router.get('/', async (req, res, next) => {
     let filter = Object();
-    if (req.query.modality) filter.modality = req.query.modality;
-    if (req.query.current && req.query.current === 'true')
-        filter.lessons = {
-            $elemMatch: {
-                date: {
-                    $gte: new Date()
-                }
-            }
-        };
-
-    if (Object.keys(filter).length !== 0)
-        filter = {
-            schedules: {
-                $elemMatch: {
-                    ...filter
-                }
-            }
-        }
-    else filter = undefined;
+    if (req.query.current) {
+        filter["schedules.lessons.date"] = {$gt: Date.now()}
+    }
 
     let course = await Course.getModel().findOne({
-        _id: res.locals.courseId
-    }, filter);
+        _id: res.locals.courseId,
 
+    });
     if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
 
-    return res.status(200).json(course.schedules);
+    course = await Course.getModel().findOne({
+        _id: res.locals.courseId,
+        ...filter
+    });
+
+    return res.status(200).json(course?.schedules ?? []);
 });
 
 router.get('/:scheduleId', async (req, res, next) => {
@@ -105,6 +97,36 @@ router.get('/:scheduleId', async (req, res, next) => {
     return res.status(200).json(course.schedules[0]);
 });
 
-// TODO: add route get certificate
+router.post('/:scheduleId/certificate', imageUpload.array(), authorize([Role.Student]), async (req, res, next) => {
+    // get course with only the schedule we need
+    let course = await Course.getModel().findOne({
+        _id: res.locals.courseId,
+        "schedules._id": req.params.scheduleId,
+    }, {
+        schedules: {$elemMatch: {_id: req.params.scheduleId}}
+    });
+
+    if (!course) return next({statusCode: 409, error: true, errormessage: "Course not found."})
+
+    if (!course.schedules[0].certificatePassword)
+        return next({statusCode: 409, error: true, errormessage: "Certificate password not set."})
+
+    if (course.schedules[0].certificatePassword !== req.body.certificatePassword)
+        return next({statusCode: 409, error: true, errormessage: "Wrong password."})
+
+    const config = ini.parse(fs.readFileSync('./globalSettings.ini', 'utf-8'));
+    const attendanceCount = course.schedules[0].lessons.filter(l => l.attendances.includes(req.auth.id)).length;
+    if (attendanceCount * 100 / course.schedules[0].lessons.length < config.SETTINGS.minimumAttendancePercentage)
+        return next({statusCode: 409, error: true, errormessage: "Not enough attendance to the course."})
+
+    if (!course.certificateFile)
+        return next({
+            statusCode: 409,
+            error: true,
+            errormessage: "Certificate not found, please contact course teacher."
+        });
+
+    res.status(200).download(course.certificateFile);
+});
 
 module.exports = router;

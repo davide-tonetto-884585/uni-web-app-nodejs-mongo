@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { UserHttpService } from '../services/user-http.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { CourseHttpService } from '../services/course-http.service';
+import {UserHttpService} from '../services/user-http.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {CourseHttpService} from '../services/course-http.service';
 
 import * as CryptoJS from 'crypto-js';
-import { SECRET } from '../globals';
+import {SECRET} from '../globals';
 
 @Component({
   selector: 'app-user-login',
@@ -21,7 +21,8 @@ export class UserLoginComponent implements OnInit {
     private course_http: CourseHttpService,
     private router: Router,
     private activated_rouer: ActivatedRoute
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.activated_rouer.queryParams.subscribe(params => {
@@ -54,10 +55,10 @@ export class UserLoginComponent implements OnInit {
 
       this.course_http.addPresenzaCorso(id_corso, id_prog_corso, id_lezione, id_studente, passcode).subscribe({
         next: (d) => {
-          this.router.navigate(['/home'], { queryParams: { error: false, message: 'Attendance registered successfully' } })
+          this.router.navigate(['/home'], {queryParams: {error: false, message: 'Attendance registered successfully'}})
         },
         error: (err) => {
-          this.router.navigate(['/home'], { queryParams: { error: true, message: 'Attendance registered failed: ' + err } })
+          this.router.navigate(['/home'], {queryParams: {error: true, message: 'Attendance registered failed: ' + err}})
         }
       })
     }

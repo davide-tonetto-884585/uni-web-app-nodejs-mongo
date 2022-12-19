@@ -58,14 +58,15 @@ courseScheduleSchema.methods.addInscription = async function (courseId, studentI
         student.studentData.inscriptions.push({
             courseId: courseId,
             courseScheduleId: this._id,
+            isInPresence: isInPresence
         })
 
-        let res = true
-        student.save().catch(err => {
-            res = false
-        });
-
-        if (!res) return false;
+        try {
+            let res = await student.save();
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
     } else return false
 
     this.inscriptions.push({
@@ -77,21 +78,23 @@ courseScheduleSchema.methods.addInscription = async function (courseId, studentI
 }
 
 courseScheduleSchema.methods.removeInscription = async function (courseId, studentId): Promise<boolean> {
-    const index = this.inscriptions.findIndex(inscription => inscription.studentId === studentId);
+    const index = this.inscriptions.findIndex(inscription => inscription.studentId == studentId);
     if (index === -1) return false;
 
     let student = await User.getModel().findOne({_id: studentId});
     if (student && student.hasStudentRole()) {
-        const index_2 = student.studentData.inscriptions.findIndex(inscription => inscription.courseId === courseId && inscription.courseScheduleId === this._id);
+        const index_2 = student.studentData.inscriptions.findIndex(inscription => {
+            return String(inscription.courseId) == courseId && String(inscription.courseScheduleId) == this._id
+        });
         if (index_2 === -1) return false;
 
-        this.inscriptions.splice(index_2, 1);
-        let res = true
-        student.save().catch(err => {
-            res = false
-        });
-
-        if (!res) return false;
+        student.studentData.inscriptions.splice(index_2, 1);
+        try {
+            await student.save()
+        } catch (e) {
+            console.log(e);
+            return false;
+        }
     } else return false;
 
     this.inscriptions.splice(index, 1);

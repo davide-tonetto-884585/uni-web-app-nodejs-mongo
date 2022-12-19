@@ -1,39 +1,40 @@
-import {authorize, Role, upload} from "../index";
+import {authorize, imageUpload, Role} from "../index";
+import * as Course from '../models/Course';
+import * as User from '../models/User';
+
+const fs = require('fs');
+const ini = require('ini');
 
 const express = require('express');
 const router = express.Router();
 
-import * as Course from '../models/Course';
-import * as User from '../models/User';
-
 router.get('/', async (req, res, next) => {
-    const title = req.body.title;
-    const skip = req.body.skip;
-    const limit = req.body.limit;
-    const language = req.body.language;
-    const scheduled = req.body.scheduled;
-    const popular = req.body.popular;
+    const title = req.query.title;
+    const skip = req.query.skip;
+    const limit = req.query.limit;
+    const language = req.query.language;
+    const scheduled = req.query.scheduled;
+    const popular = req.query.popular;
 
     let filter = Object();
     if (title) filter.title = {$regex: '.*' + title + '.*'};
     if (language) filter.language = {$regex: '.*' + language + '.*'};
     if (scheduled) {
-        filter["schedules.lessons.date"] = {$greater: Date.now()}
-    }
-    if (popular) {
-        filter["schedules.inscriptions"] = {$size: {$gt: 0}}
+        filter["schedules.lessons.date"] = {$gt: Date.now()}
     }
 
     let query = Course.getModel().find(filter);
     const count = await Course.getModel().countDocuments(query);
 
+    if (popular)
+        query = query.sort({"schedules.inscriptions": -1});
+    else if (scheduled)
+        query = query.sort({"schedules.lessons.date": -1});
+
     if (skip) query.skip(skip);
     if (limit) query.limit(limit);
 
     query.then((courses) => {
-        // TODO: add order by
-        // if (popular) courses = courses.sort((a, b) => {});
-
         return res.status(200).json({courses: courses, count: count});
     }).catch((err) => {
         return next({statusCode: 500, error: true, errormessage: "Error in finding courses: " + err});
@@ -53,7 +54,7 @@ router.get('/:id', (req, res, next) => {
 
 // add new course
 router.post('/', authorize([Role.Admin, Role.Teacher]),
-    upload.fields([{
+    imageUpload.fields([{
         name: 'image', maxCount: 1
     }, {
         name: 'certificateFile', maxCount: 1
@@ -61,7 +62,13 @@ router.post('/', authorize([Role.Admin, Role.Teacher]),
         const title = req.body.title;
         if (!title) return next({statusCode: 404, error: true, errormessage: "Missing fields."});
 
-        // TODO: add check for course limit per teacher
+        const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+        const courseCount = await Course.getModel().count({teacherId: req.params.id});
+        if (courseCount >= config.SETTINGS.teacherCoursesLimit) return next({
+            statusCode: 403,
+            error: true,
+            errormessage: "You have reached the maximum number of courses."
+        });
 
         if (await Course.getModel().count({title: title}) > 0)
             return next({statusCode: 409, error: true, errormessage: "Course with same title already exist."});
@@ -95,7 +102,7 @@ router.post('/', authorize([Role.Admin, Role.Teacher]),
 
 // modify course
 router.put('/:id', authorize([Role.Admin, Role.Teacher]),
-    upload.fields([{
+    imageUpload.fields([{
         name: 'image', maxCount: 1
     }, {
         name: 'certificateFile', maxCount: 1

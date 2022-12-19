@@ -41,7 +41,7 @@ const lessonSchema = new mongoose.Schema({
     }]
 });
 
-lessonSchema.methods.addAttendance = function(studentId, presencePasscode): boolean {
+lessonSchema.methods.addAttendance = function (studentId, presencePasscode): boolean {
     if (presencePasscode !== this.presencePasscode) return false;
 
     this.attendances.push({studentId: studentId});

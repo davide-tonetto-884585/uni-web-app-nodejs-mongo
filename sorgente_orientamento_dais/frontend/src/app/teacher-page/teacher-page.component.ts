@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { CourseHttpService } from '../services/course-http.service';
-import { BACKEND_URL } from '../globals';
-import { Course } from '../models';
-import { UserDataHttpService } from '../services/user-data-http.service';
-import { UserHttpService } from '../services/user-http.service';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
+import {CourseHttpService} from '../services/course-http.service';
+import {BACKEND_URL} from '../globals';
+import {Course} from '../models';
+import {UserDataHttpService} from '../services/user-data-http.service';
 
 @Component({
   selector: 'app-teacher-page',
@@ -21,7 +20,8 @@ export class TeacherPageComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private user_data_http: UserDataHttpService,
     private course_http: CourseHttpService
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.activatedRoute.paramMap.subscribe(params => {
@@ -30,13 +30,13 @@ export class TeacherPageComponent implements OnInit {
 
     this.user_data_http.getUserData(this.teacher_id).subscribe({
       next: (res) => {
-        this.teacher = { ...this.teacher, ...res };
+        this.teacher = {...this.teacher, ...res};
       }
     });
 
     this.user_data_http.getTeacherData(this.teacher_id).subscribe({
       next: (res) => {
-        this.teacher = { ...this.teacher, ...res };
+        this.teacher = {...this.teacher, ...res};
       }
     });
 

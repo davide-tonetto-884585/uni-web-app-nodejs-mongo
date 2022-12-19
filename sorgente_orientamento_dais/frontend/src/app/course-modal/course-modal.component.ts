@@ -1,13 +1,12 @@
-import {Component, OnInit, Inject} from '@angular/core';
-import { MatDialog, MAT_DIALOG_DATA as MAT_DIALOG_DATA} from '@angular/material/dialog';
+import {Component, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA as MAT_DIALOG_DATA, MatDialog} from '@angular/material/dialog';
 import {CourseHttpService} from '../services/course-http.service';
 import {AulaHttpService} from '../services/aula-http.service';
 
-import {Course, courseSchedule, Lesson, Classroom} from '../models';
-import {Router} from '@angular/router';
+import {Classroom, Course, courseSchedule, Lesson} from '../models';
 import {MessageDialogComponent} from '../message-dialog/message-dialog.component';
 import {UserHttpService} from '../services/user-http.service';
-import {MatDateFormats, MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS} from '@angular/material/core';
+import {MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatDateFormats} from '@angular/material/core';
 import {MatDatepickerInputEvent} from '@angular/material/datepicker';
 
 export const GRI_DATE_FORMATS: MatDateFormats = {
@@ -273,10 +272,6 @@ export class CourseModalComponent implements OnInit {
     }
   }
 
-  private padTo2Digits(num: number): string {
-    return num.toString().padStart(2, '0');
-  }
-
   formatDate(date: Date): string {
     return [
       date.getFullYear(),
@@ -290,8 +285,12 @@ export class CourseModalComponent implements OnInit {
     return new Date(+year, +month - 1, +day);
   }
 
-  adjustDate(lezione: Lesson, event: MatDatepickerInputEvent<Date>): void {
+  adjustDate(lezione: Lesson, event: any): void {
     if (event.value)
       lezione.date = this.formatDate(event.value);
+  }
+
+  private padTo2Digits(num: number): string {
+    return num.toString().padStart(2, '0');
   }
 }

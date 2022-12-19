@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { AulaHttpService } from '../services/aula-http.service';
-import { Classroom } from '../models';
+import {Component, OnInit} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {AulaHttpService} from '../services/aula-http.service';
+import {Classroom} from '../models';
 
 @Component({
   selector: 'app-classroom-modal',
@@ -16,7 +16,8 @@ export class ClassroomModalComponent implements OnInit {
   constructor(
     private aula_http: AulaHttpService,
     private dialog: MatDialog
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.aula_http.getAule().subscribe({

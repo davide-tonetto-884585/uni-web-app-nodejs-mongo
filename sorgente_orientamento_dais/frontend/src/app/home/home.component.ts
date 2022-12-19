@@ -1,33 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { CourseHttpService } from '../services/course-http.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Course } from '../models';
-import { Observable } from 'rxjs';
+import {CourseHttpService} from '../services/course-http.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Course} from '../models';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   providers: [
-    { provide: CourseHttpService, useClass: CourseHttpService }
+    {provide: CourseHttpService, useClass: CourseHttpService}
   ]
 })
 export class HomeComponent implements OnInit {
-  private limit: number = 9;
-  private skip: number = 0;
   new_courses: Course[] = [];
   scheduled_courses: Course[] = [];
   popular_courses: Course[] = [];
-
   error: string | null = null;
   message: string | null = null;
+  private limit: number = 9;
+  private skip: number = 0;
 
   constructor(
     private course_http: CourseHttpService,
     private router: Router,
     private activated_route: ActivatedRoute
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.getCourses().subscribe({

@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { tap, catchError } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {tap} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 import jwt_decode from 'jwt-decode';
-import { Router } from '@angular/router';
+import {Router} from '@angular/router';
 
-import { User, UserData } from '../models';
-import { BACKEND_URL, FRONTEND_URL } from '../globals';
+import {User, UserData} from '../models';
+import {BACKEND_URL, FRONTEND_URL} from '../globals';
 
 @Injectable({
   providedIn: 'root'
@@ -26,17 +26,6 @@ export class UserHttpService {
     } else {
       this.user_data = jwt_decode<UserData>(this.token);
     }
-  }
-
-  // crea le opzioni di base per le richieste includendo il token di autenticazione
-  private createOptions(params = {}) {
-    return {
-      headers: new HttpHeaders({
-        'authorization': 'Bearer ' + this.getToken(),
-        'cache-control': 'no-cache',
-      }),
-      params: new HttpParams({ fromObject: params })
-    };
   }
 
   // restituisce il token di autenticazione
@@ -187,5 +176,16 @@ export class UserHttpService {
   // ritorna l'ID dell'utente loggato se presente
   getId(): string | undefined {
     return this.user_data?.id;
+  }
+
+  // crea le opzioni di base per le richieste includendo il token di autenticazione
+  private createOptions(params = {}) {
+    return {
+      headers: new HttpHeaders({
+        'authorization': 'Bearer ' + this.getToken(),
+        'cache-control': 'no-cache',
+      }),
+      params: new HttpParams({fromObject: params})
+    };
   }
 }

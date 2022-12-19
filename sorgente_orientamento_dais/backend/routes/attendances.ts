@@ -1,16 +1,20 @@
-import {authorize, Role, upload} from "../index";
+import {authorize, imageUpload, Role} from "../index";
 import * as Course from "../models/Course";
 
 const express = require('express');
 const router = express.Router();
 
-router.post('/', upload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
+router.post('/', imageUpload.array(), authorize([Role.Admin, Role.Teacher, Role.Student]), async (req, res, next) => {
     if (!req.body.studentId || !req.body.presencePasscode) {
         return next({statusCode: 400, error: true, errormessage: "Missing parameters."});
     }
 
     if (req.auth.roles.includes(Role.Student) && req.auth.id != req.body.studentId) {
-        return next({statusCode: 401, error: true, errormessage: "You are not authorized to add an attendance for another student."});
+        return next({
+            statusCode: 401,
+            error: true,
+            errormessage: "You are not authorized to add an attendance for another student."
+        });
     }
 
     let course = await Course.getModel().findOne({

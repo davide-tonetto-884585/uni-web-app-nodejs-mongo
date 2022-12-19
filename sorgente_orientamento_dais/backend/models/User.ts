@@ -18,6 +18,7 @@ export interface User extends mongoose.Document {
         inscriptions: {
             courseId: mongoose.Schema.Types.ObjectId,
             courseScheduleId: mongoose.Schema.Types.ObjectId,
+            isInPresence: boolean,
         }[],
         schoolId: mongoose.Schema.Types.ObjectId
     },
@@ -101,6 +102,9 @@ const userSchema = new mongoose.Schema({
                 courseScheduleId: {
                     type: mongoose.SchemaTypes.ObjectId,
                     ref: 'CourseSchedule',
+                },
+                isInPresence: {
+                    type: mongoose.SchemaTypes.Boolean,
                 }
             }],
             schoolId: {
@@ -120,7 +124,7 @@ const userSchema = new mongoose.Schema({
             },
             description: {
                 type: mongoose.SchemaTypes.String,
-                required: true
+                required: false
             },
             profilePicture: {
                 type: mongoose.SchemaTypes.String,

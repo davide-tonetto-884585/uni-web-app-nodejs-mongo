@@ -1,4 +1,4 @@
-import {authorize, Role, upload} from "../index";
+import {authorize, imageUpload, Role} from "../index";
 import * as Course from '../models/Course';
 
 const express = require('express');
@@ -18,7 +18,7 @@ router.get('/', async (req, res, next) => {
 })
 
 //insert new lesson
-router.post('/', upload.array(), authorize([Role.Teacher, Role.Admin]), async (req, res, next) => {
+router.post('/', imageUpload.array(), authorize([Role.Teacher, Role.Admin]), async (req, res, next) => {
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
         "schedules._id": res.locals.scheduleId,
@@ -56,7 +56,7 @@ router.post('/', upload.array(), authorize([Role.Teacher, Role.Admin]), async (r
 })
 
 // modify lesson
-router.put('/:lessonId', upload.array(), authorize([Role.Teacher, Role.Admin]), async (req, res, next) => {
+router.put('/:lessonId', imageUpload.array(), authorize([Role.Teacher, Role.Admin]), async (req, res, next) => {
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
         "schedules._id": res.locals.scheduleId,

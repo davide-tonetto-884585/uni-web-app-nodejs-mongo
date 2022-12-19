@@ -103,3 +103,26 @@ export interface Answer {
     surname: string;
   };
 }
+
+export interface Statistics {
+  maleInscriptionsCount: number,
+  femaleInscriptionCount: number,
+  otherInscriptionCount: number,
+  middleAge: number,
+  inscriptionCount: number,
+  lessonsCount: number,
+  attendanceCount: number,
+  studentDistribution: { name: string, value: number }[],
+  studentProvenience: { name: string, value: number }[],
+  inPresenceInscriptionCount: number,
+  onlineInscriptionCount: number,
+  dualInscriptionCount: number,
+  inPresenceLessonsCount: number,
+  onlineLessonsCount: number,
+  dualLessonsCount: number,
+  inPresenceAttendanceCount: number,
+  onlineAttendanceCount: number,
+  dualAttendanceCount: number,
+  schedulesComparison: any[]
+
+}

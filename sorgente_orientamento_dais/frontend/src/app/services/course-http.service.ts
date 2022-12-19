@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { tap, catchError } from 'rxjs/operators';
-import { Observable, throwError } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpParams} from '@angular/common/http';
+import {catchError} from 'rxjs/operators';
+import {Observable, throwError} from 'rxjs';
 
-import { Course, Lesson, courseSchedule, Classroom } from '../models';
-import { BACKEND_URL, FRONTEND_URL } from '../globals';
-import { UserHttpService } from './user-http.service';
+import {Course, courseSchedule, Lesson} from '../models';
+import {BACKEND_URL} from '../globals';
+import {UserHttpService} from './user-http.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,29 +15,7 @@ export class CourseHttpService {
   constructor(
     private http: HttpClient,
     private user_http: UserHttpService,
-  ) { }
-
-  private createOptions(params = {}) {
-    return {
-      headers: new HttpHeaders({
-        'authorization': 'Bearer ' + this.user_http.getToken(),
-        'cache-control': 'no-cache',
-      }),
-      params: new HttpParams({ fromObject: params })
-    };
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    if (error.error instanceof ErrorEvent) {
-      console.error('An error occurred:', error.error.message);
-      return throwError(() => error.error.message);
-    } else {
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        'body was: ' + JSON.stringify(error.error));
-
-      return throwError(() => error.error.errormessage);
-    }
+  ) {
   }
 
   // ritorna i corsi aplicando eventuali filtri resi disponbili dal backend
@@ -84,15 +62,22 @@ export class CourseHttpService {
   getProgrammazioniCorso(id_corso: string, in_corso: boolean | null = null): Observable<courseSchedule[]> {
     return this.http.get<courseSchedule[]>(
       `${BACKEND_URL}/courses/${id_corso}/courseSchedules`,
-      this.createOptions(Object.fromEntries(Object.entries({ in_corso: in_corso }).filter(([_, v]) => v != null)))
+      this.createOptions(Object.fromEntries(Object.entries({current: in_corso}).filter(([_, v]) => v != null)))
+    ).pipe(catchError(this.handleError));
+  }
+
+  getProgrammazioneCorso(id_corso: string, id_prog_corso: string): Observable<courseSchedule> {
+    return this.http.get<courseSchedule>(
+      `${BACKEND_URL}/courses/${id_corso}/courseSchedules/${id_prog_corso}`,
+      this.createOptions()
     ).pipe(catchError(this.handleError));
   }
 
   // iscrive uno studente ad un programmazione di un corso
-  enrollStudent(id_corso: string, id_prog_corso: string, id_stud: string, in_presenza: boolean | null = null): Observable<any> {
+  enrollStudent(id_corso: string, id_prog_corso: string, id_stud: string, in_presenza: boolean): Observable<any> {
     const form_data = new FormData();
     form_data.append('studentId', id_stud.toString())
-    if (in_presenza !== null) form_data.append('isInPresence', in_presenza.toString())
+    form_data.append('isInPresence', in_presenza.toString())
 
     return this.http.post(
       `${BACKEND_URL}/courses/${id_corso}/courseSchedules/${id_prog_corso}/inscriptions`,
@@ -219,16 +204,44 @@ export class CourseHttpService {
   }
 
   // invia la richiesta per il download del certificato di partecipazione
-  getCertificate(id_corso: string, id_prog_corso: string): Observable<any> {
-    return this.http.get(
+  getCertificate(id_corso: string, id_prog_corso: string, certificatePassword: string): Observable<any> {
+    const form_data = new FormData();
+    form_data.append('certificatePassword', certificatePassword)
+
+    return this.http.post(
       `${BACKEND_URL}/courses/${id_corso}/courseSchedules/${id_prog_corso}/certificate`,
-      { observe: 'response', responseType: 'blob', ...this.createOptions() }
+      form_data,
+      {observe: 'response', responseType: 'blob', ...this.createOptions()}
     ).pipe(catchError(() => {
       // se la prima richiesta va in errore ne eseguo un'altra per sapere il motivo dell'errore
-      return this.http.get(
+      return this.http.post(
         `${BACKEND_URL}/courses/${id_corso}/courseSchedules/${id_prog_corso}/certificate`,
+        form_data,
         this.createOptions()
       )
     }))
+  }
+
+  private createOptions(params = {}) {
+    return {
+      headers: new HttpHeaders({
+        'authorization': 'Bearer ' + this.user_http.getToken(),
+        'cache-control': 'no-cache',
+      }),
+      params: new HttpParams({fromObject: params})
+    };
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      console.error('An error occurred:', error.error.message);
+      return throwError(() => error.error.message);
+    } else {
+      console.error(
+        `Backend returned code ${error.status}, ` +
+        'body was: ' + JSON.stringify(error.error));
+
+      return throwError(() => error.error.errormessage);
+    }
   }
 }

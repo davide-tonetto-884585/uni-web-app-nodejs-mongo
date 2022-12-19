@@ -1,13 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
-import { Course, courseSchedule, Lesson, Classroom } from '../models';
-import { CourseHttpService } from '../services/course-http.service';
-import { AulaHttpService } from '../services/aula-http.service';
-import { UserHttpService } from '../services/user-http.service';
-import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { CourseModalComponent } from '../course-modal/course-modal.component';
-import { MessageDialogComponent } from '../message-dialog/message-dialog.component';
+import {Classroom, Course, courseSchedule, Lesson} from '../models';
+import {CourseHttpService} from '../services/course-http.service';
+import {AulaHttpService} from '../services/aula-http.service';
+import {UserHttpService} from '../services/user-http.service';
+import {Router} from '@angular/router';
+import {MatDialog} from '@angular/material/dialog';
+import {CourseModalComponent} from '../course-modal/course-modal.component';
+import {MessageDialogComponent} from '../message-dialog/message-dialog.component';
 
 @Component({
   selector: 'app-my-courses',
@@ -23,7 +23,8 @@ export class MyCoursesComponent implements OnInit {
     private aula_http: AulaHttpService,
     private router: Router,
     public dialog: MatDialog
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.refresh();
@@ -63,11 +64,17 @@ export class MyCoursesComponent implements OnInit {
             this.courses = corsi;
 
             this.courses.forEach((corso) => {
-              this.course_http.getLezioniProgCorso(corso.id, corso.id_programmazione_corso).subscribe({
-                next: (lezioni: Lesson[]) => {
-                  corso.lezioni = lezioni
+              this.course_http.getCourse(corso.courseId).subscribe({
+                next: (course: Course) => {
+                  Object.assign(corso, course);
+                }
+              })
 
-                  corso.lezioni.forEach((les: Lesson) => {
+              this.course_http.getProgrammazioneCorso(corso.courseId, corso.courseScheduleId).subscribe({
+                next: (programmazione: courseSchedule) => {
+                  Object.assign(corso, programmazione);
+
+                  corso.lessons.forEach((les: Lesson) => {
                     if (les.classroomId) {
                       this.aula_http.getAula(les.classroomId).subscribe({
                         next: (aula: Classroom) => {
@@ -78,7 +85,7 @@ export class MyCoursesComponent implements OnInit {
                   });
                 }
               });
-            })
+            });
           }
         })
       } else if (this.user_http.isTeacher() && id) {
@@ -91,7 +98,10 @@ export class MyCoursesComponent implements OnInit {
     }
   }
 
-  openCourseModal(course: Course) {
+  openCourseModal(course
+                    :
+                    Course
+  ) {
     const dialog = this.dialog.open(CourseModalComponent, {
       data: {
         isNew: course._id === '',
@@ -102,8 +112,18 @@ export class MyCoursesComponent implements OnInit {
     dialog.afterClosed().subscribe(() => this.refresh());
   }
 
-  getCertificate(id_corso: string, id_prog_corso: string): void {
-    this.course_http.getCertificate(id_corso, id_prog_corso).subscribe({
+  getCertificate(id_corso
+                   :
+                   string, id_prog_corso
+                   :
+                   string, certificatePassword
+                   :
+                   string
+  ):
+    void {
+    console.log(this.courses);
+
+    this.course_http.getCertificate(id_corso, id_prog_corso, certificatePassword).subscribe({
       next: (response) => {
         let fileName = 'certificate';
         let blob: Blob = response.body as Blob;

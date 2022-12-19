@@ -1,16 +1,17 @@
-import { Component, OnInit, Input, HostBinding } from '@angular/core';
+import {Component, HostBinding, Input, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-carousel-item',
   templateUrl: './carousel-item.component.html',
-  host: { class: 'carousel-item' },
+  host: {class: 'carousel-item'},
   styleUrls: ['./carousel-item.component.css']
 })
 export class CarouselItemComponent implements OnInit {
   @Input() active: boolean = false;
   @HostBinding('class.active') classActive: boolean = false;
 
-  constructor() { }
+  constructor() {
+  }
 
   ngOnInit(): void {
     if (this.active) {

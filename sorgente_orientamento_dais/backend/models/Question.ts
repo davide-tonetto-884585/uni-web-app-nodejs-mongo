@@ -47,7 +47,7 @@ const questionSchema = new mongoose.Schema({
     }]
 });
 
-questionSchema.methods.addAnswer = function(userId, text): boolean {
+questionSchema.methods.addAnswer = function (userId, text): boolean {
     if (text.length < 2) return false;
 
     this.answers.push({
@@ -58,7 +58,7 @@ questionSchema.methods.addAnswer = function(userId, text): boolean {
     return true;
 }
 
-questionSchema.methods.addLike = function(userId): boolean {
+questionSchema.methods.addLike = function (userId): boolean {
     if (this.likes.find(like => like.userId == userId)) return false;
 
     this.likes.push({
@@ -68,7 +68,7 @@ questionSchema.methods.addLike = function(userId): boolean {
     return true;
 }
 
-questionSchema.methods.removeLike = function(userId): boolean {
+questionSchema.methods.removeLike = function (userId): boolean {
     const like = this.likes.find(like => like.userId == userId);
     if (!like) return false;
 

@@ -1,7 +1,7 @@
 import {sendMails} from "../utils";
 import passport from "passport";
 
-import {authorize, Role} from "../index";
+import {authorize, imageUpload, Role} from "../index";
 import * as User from '../models/User';
 import * as Course from '../models/Course';
 
@@ -9,11 +9,6 @@ const express = require('express');
 const router = express.Router();
 import jsonwebtoken = require('jsonwebtoken');
 import crypto = require('crypto');
-
-const multer = require('multer');
-
-// middleware for file upload (see multer package)
-const upload = multer({dest: './uploads/'});
 
 if (!process.env.JWT_SECRET) {
     console.log("\".env\" file loaded but JWT_SECRET=<secret> key-value pair was not found".red);
@@ -58,7 +53,7 @@ router.get('/login', passport.authenticate('basic', {session: false}), async (re
 });
 
 // add new student
-router.post('/students', upload.array(), async (req, res, next) => {
+router.post('/students', imageUpload.array(), async (req, res, next) => {
     if (!req.body.mail || !req.body.password || !req.body.name || !req.body.surname || !req.body.birthdate)
         return next({statusCode: 404, error: true, errormessage: "Missing fields."})
 
@@ -110,7 +105,7 @@ router.post('/students', upload.array(), async (req, res, next) => {
 });
 
 // complete student registration
-router.post('/students/:id', upload.array(), async (req, res, next) => {
+router.post('/students/:id', imageUpload.array(), async (req, res, next) => {
     if (!req.body.verifyToken || !req.body.fieldOfStudy || !req.body.schoolId)
         return next({statusCode: 404, error: true, errormessage: "Missing fields."});
 
@@ -144,7 +139,7 @@ router.post('/students/:id', upload.array(), async (req, res, next) => {
 });
 
 // add new teacher (only admin can use this route)
-router.post('/teachers', upload.array(), authorize([Role.Admin]), async (req, res, next) => {
+router.post('/teachers', imageUpload.array(), authorize([Role.Admin]), async (req, res, next) => {
     if (!req.body.mail || !req.body.name || !req.body.surname || !req.body.birthdate)
         return next({statusCode: 404, error: true, errormessage: "Missing fields."})
 
@@ -155,12 +150,19 @@ router.post('/teachers', upload.array(), authorize([Role.Admin]), async (req, re
     let hmac = crypto.createHmac('sha512', token_salt);
     const token = hmac.digest('hex');
 
+    const dateParts = req.body.birthdate.split("/");
+    const dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
+
+    let gender = Object();
+    if (req.body.gender !== 'null')
+        gender.gender = req.body.gender;
+
     let new_teacher = User.newUser({
         name: req.body.name,
         surname: req.body.surname,
         mail: req.body.mail,
-        birthdate: new Date(req.body.birthdate),
-        gender: req.body.gender,
+        birthdate: dateObject,
+        ...gender,
         verifyToken: token,
         teacherData: {
             isAdmin: false
@@ -195,7 +197,7 @@ router.post('/teachers', upload.array(), authorize([Role.Admin]), async (req, re
 });
 
 // complete teacher registration
-router.post('/teachers/:id', upload.array(), async (req, res, next) => {
+router.post('/teachers/:id', imageUpload.array("profilePicture"), async (req, res, next) => {
     if (!req.body.verifyToken || !req.body.password)
         return next({statusCode: 404, error: true, errormessage: "Missing fields."})
 
@@ -207,8 +209,13 @@ router.post('/teachers/:id', upload.array(), async (req, res, next) => {
 
     if (user && user.teacherData) {
         if (user.verifyToken === req.body.verifyToken) {
-            user.studentData.schoolId = req.body.scoolId;
-            user.studentData.fieldOfStudy = req.body.fieldOfStudy;
+            user.teacherData.description = req.body.description;
+            user.teacherData.teacherPageLink = req.body.teacherPageLink;
+            if (req.files[0].path)
+                user.teacherData.profilePicture = req.files[0].path;
+
+            user.setPassword(req.body.password);
+
             user.verified = true;
             user.verifyToken = "";
             user.save().then((user) => {
@@ -274,7 +281,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 // update student information
-router.put('/students/:id', upload.array(), authorize([Role.Admin, Role.Student]), async (req, res, next) => {
+router.put('/students/:id', imageUpload.array(), authorize([Role.Admin, Role.Student]), async (req, res, next) => {
     if (req.auth.roles.includes(Role.Student) && req.auth.id != req.params.id)
         return next({statusCode: 401, error: true, errormessage: "Permission denied."})
 
@@ -300,7 +307,7 @@ router.put('/students/:id', upload.array(), authorize([Role.Admin, Role.Student]
 
 router.put('/teachers/:id',
     authorize([Role.Admin, Role.Teacher]),
-    upload.array("profilePicture"),
+    imageUpload.array("profilePicture"),
     async (req, res, next) => {
         if (req.auth.roles.includes(Role.Teacher) && req.auth.id != req.params.id)
             return next({statusCode: 401, error: true, errormessage: "Permission denied."})

@@ -121,6 +121,7 @@ app.use((req, res, next) => {
     console.log("------------------------------------------------".inverse)
     console.log("New request for: " + req.url);
     console.log("Method: " + req.method);
+    console.log("Time: " + new Date().toLocaleString());
     next();
 });
 

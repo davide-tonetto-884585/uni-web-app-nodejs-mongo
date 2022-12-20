@@ -82,6 +82,7 @@ router.get('/', async (req, res, next) => {
     if (course && req.query.currentOrNull) {
         let schedules = Array();
         course.schedules.forEach((schedule) => {
+            // @ts-ignore
             if (schedule.lessons.length === 0 || schedule.lessons.find((lesson) => lesson.date.getTime() > Date.now()) !== undefined)
                 schedules.push(schedule)
         });

@@ -7,7 +7,6 @@ import {Classroom, Course, courseSchedule, Lesson} from '../models';
 import {MessageDialogComponent} from '../message-dialog/message-dialog.component';
 import {UserHttpService} from '../services/user-http.service';
 import {MAT_DATE_FORMATS, MAT_NATIVE_DATE_FORMATS, MatDateFormats} from '@angular/material/core';
-import {MatDatepickerInputEvent} from '@angular/material/datepicker';
 
 export const GRI_DATE_FORMATS: MatDateFormats = {
   ...MAT_NATIVE_DATE_FORMATS,
@@ -50,7 +49,7 @@ export class CourseModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.course) {
+    if (this.course && this.course._id !== '') {
       this.course_http.getProgrammazioniCorso(this.course._id, null, true).subscribe({
         next: (prog_corso: courseSchedule[]) => {
           this.progs = prog_corso;
@@ -76,13 +75,13 @@ export class CourseModalComponent implements OnInit {
           });
         }
       });
-
-      this.aula_http.getAule().subscribe({
-        next: (aule: Classroom[]) => {
-          this.aule = aule;
-        }
-      });
     }
+
+    this.aula_http.getAule().subscribe({
+      next: (aule: Classroom[]) => {
+        this.aule = aule;
+      }
+    });
   }
 
   addProgCorso(): void {
@@ -115,40 +114,23 @@ export class CourseModalComponent implements OnInit {
 
     this.course_http.addCourse(this.course).subscribe({
       next: (d) => {
+        console.log(d)
         this.progs.forEach((prog) => {
-          if (prog._id != '') {
-            this.course_http.updateProgCorso(d.id, prog).subscribe({
-              next: (d3) => {
-                if (prog.lessons)
-                  this.addLezioni(d.id, d3.id, prog.lessons);
-              },
-              error: (err) => {
-                this.dialog.open(MessageDialogComponent, {
-                  data: {
-                    text: err,
-                    title: 'Failed!',
-                    error: true
-                  },
-                });
-              }
-            })
-          } else {
-            this.course_http.addProgCorso(this.course._id, prog).subscribe({
-              next: (d) => {
-                if (prog.lessons)
-                  this.addLezioni(this.course._id, d.id, prog.lessons);
-              },
-              error: (err) => {
-                this.dialog.open(MessageDialogComponent, {
-                  data: {
-                    text: err,
-                    title: 'Failed!',
-                    error: true
-                  },
-                });
-              }
-            })
-          }
+          this.course_http.addProgCorso(d.courseId, prog).subscribe({
+            next: (d2) => {
+              if (prog.lessons)
+                this.addLezioni(d.courseId, d2.courseScheduleId, prog.lessons);
+            },
+            error: (err) => {
+              this.dialog.open(MessageDialogComponent, {
+                data: {
+                  text: err,
+                  title: 'Failed!',
+                  error: true
+                },
+              });
+            }
+          })
         });
       },
       error: (err) => {
@@ -191,7 +173,7 @@ export class CourseModalComponent implements OnInit {
             this.course_http.addProgCorso(this.course._id, prog).subscribe({
               next: (d) => {
                 if (prog.lessons)
-                  this.addLezioni(this.course._id, d.id, prog.lessons);
+                  this.addLezioni(this.course._id, d.courseScheduleId, prog.lessons);
                 else
                   this.dialog.closeAll()
               },

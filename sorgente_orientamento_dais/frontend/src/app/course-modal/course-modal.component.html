@@ -147,7 +147,7 @@
               <mat-label>Classroom</mat-label>
               <mat-select [(ngModel)]="les.classroomId" [(value)]="les.classroomId" [name]="'id_aula' + il + '_' + i">
                 <mat-option *ngFor="let aula of aule" [value]="aula._id">
-                  {{ aula.name + ", " + aula.building + " " + aula.campus + " (" + aula.capacity + "students)" }}
+                  {{ aula.name + ", " + aula.building + " " + aula.campus + " (" + aula.capacity + " students)" }}
                 </mat-option>
               </mat-select>
             </mat-form-field>

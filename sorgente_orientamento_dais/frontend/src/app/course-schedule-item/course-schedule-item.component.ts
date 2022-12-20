@@ -124,7 +124,7 @@ export class CourseScheduleItemComponent implements OnInit {
   }
 
   showQR(id_corso: string, id_prog_corso: string, id_lezione: string, passcode: string): void {
-    this.QRInfo = `${FRONTEND_URL}/login?pres_code=${id_corso}.${id_prog_corso}.${id_lezione}.${CryptoJS.AES.encrypt(passcode, SECRET).toString()}`;
+    this.QRInfo = `${FRONTEND_URL}/login?pres_code=${id_corso}.${id_prog_corso}.${id_lezione}.${encodeURIComponent(CryptoJS.AES.encrypt(passcode, SECRET).toString())}`;
     console.log(this.QRInfo) //TODO: togliere
   }
 }

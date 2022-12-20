@@ -324,7 +324,7 @@ router.put('/teachers/:id',
         if (req.body.teacherPageLink)
             user.teacherData.teacherPageLink = req.body.teacherPageLink;
 
-        if (req.files[0].path)
+        if (req.files[0])
             user.teacherData.profilePicture = req.files[0].path;
 
         user.save().then((user) => {

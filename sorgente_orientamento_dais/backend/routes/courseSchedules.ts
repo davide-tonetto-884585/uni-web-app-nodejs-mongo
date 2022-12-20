@@ -24,7 +24,7 @@ router.post('/', imageUpload.array(), authorize([Role.Admin, Role.Teacher]), asy
 
     course.addSchedule(req.body.modality, req.body.inscriptionLimit, req.body.certificatePassword);
     course.save().then((r) => {
-        return res.status(200).json({error: false, errormessage: ""})
+        return res.status(200).json({error: false, errormessage: "", courseScheduleId: r.schedules[r.schedules.length - 1]._id});
     }).catch(err => {
         return next({statusCode: 500, error: true, errormessage: "Cannot add course schedule: " + err});
     })

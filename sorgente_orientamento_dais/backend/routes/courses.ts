@@ -22,6 +22,7 @@ router.get('/', async (req, res, next) => {
     if (scheduled) {
         filter["schedules.lessons.date"] = {$gt: Date.now()}
     }
+    filter.enabled = true;
 
     let query = Course.getModel().find(filter);
     const count = await Course.getModel().countDocuments(query);
@@ -62,7 +63,7 @@ router.post('/', authorize([Role.Admin, Role.Teacher]),
         const title = req.body.title;
         if (!title) return next({statusCode: 404, error: true, errormessage: "Missing fields."});
 
-        const config = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+        const config = ini.parse(fs.readFileSync('./globalSettings.ini', 'utf-8'));
         const courseCount = await Course.getModel().count({teacherId: req.params.id});
         if (courseCount >= config.SETTINGS.teacherCoursesLimit) return next({
             statusCode: 403,

@@ -26,7 +26,7 @@ export class UserLoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.activated_rouer.queryParams.subscribe(params => {
-      this.pres_code = params['pres_code'];
+      this.pres_code = params['pres_code'] ? decodeURIComponent(params['pres_code']) : undefined;
       if (params['errmessage']) this.errmessage = params['errmessage'];
     });
 

@@ -11,7 +11,7 @@
   <p class="mb-1"><b>Question:</b></p>
   <p>{{ question?.text }}</p>
   <p *ngIf="replies.length > 0" class="mb-1"><b>Answers:</b></p>
-  <p *ngFor="let reply of replies">{{ reply.userId.name + ' ' + reply.userId.name + ': ' + reply.text }}</p>
+  <p *ngFor="let reply of replies">{{ reply.userId.name + ' ' + reply.userId.surname + ': ' + reply.text }}</p>
   <div class="text-center">
     <button (click)="chiudiDomanda()" *ngIf="canAnswer() && !question?.isClosed" class="btn btn-warning m-1"
             type="button">

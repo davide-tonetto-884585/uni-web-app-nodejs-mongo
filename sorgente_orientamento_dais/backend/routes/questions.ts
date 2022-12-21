@@ -76,6 +76,7 @@ router.put('/:id', imageUpload.array(), authorize([Role.Admin, Role.Teacher, Rol
     let course = await Course.getModel().findOne({
         _id: res.locals.courseId,
     }, {
+        teacherId: 1,
         questions: {
             $elemMatch: {
                 _id: req.params.id
@@ -84,14 +85,14 @@ router.put('/:id', imageUpload.array(), authorize([Role.Admin, Role.Teacher, Rol
     });
     if (!course || !course.questions[0]) return next({statusCode: 409, error: true, errormessage: "Course not found."});
 
-    if (req.auth.roles.includes(Role.Teacher) && course.questions[0].userId != req.auth.id)
+    if (req.auth.roles.includes(Role.Teacher) && String(course.teacherId) != req.auth.id)
         return next({
             statusCode: 401,
             error: true,
             errormessage: "You are not authorized to edit a question that does not belong to you."
         });
 
-    if (req.auth.roles.includes(Role.Student) && course.questions[0].userId != req.auth.id)
+    if (req.auth.roles.includes(Role.Student) && String(course.questions[0].userId) != req.auth.id)
         return next({
             statusCode: 401,
             error: true,

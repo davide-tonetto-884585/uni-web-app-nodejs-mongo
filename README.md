@@ -1,6 +1,6 @@
 # Configuration
 
-> **ATTENTION:** this guides is made for windows.
+> **ATTENTION:** this guide is made for windows.
 
 ## Installation
 

@@ -1,3 +1,7 @@
+# University Orientation Web App
+
+This repository contains a web application designed to help students select the right university and academic program. Built with MongoDB and Node.js, the app allows students to explore available courses offered by faculty and easily enroll in the ones that match their interests. The platform provides a user-friendly interface for discovering programs, reviewing course details, and streamlining the enrollment process, making it an essential tool for students planning their academic future.
+
 # Configuration
 
 > **ATTENTION:** this guide is made for windows.
